@@ -1,4 +1,4 @@
-# AI-Based Motor Fault Detection: Analog Sensing + Embedded Firmware
+# AI-Based Motor Fault Detection Using Analog Current Sensing
 
 One website, one subject. The main project senses motor current with an analog front-end and classifies faults with a Random Forest. An industry extension shows the same idea scaled up to an industrial motor with embedded firmware.
 
@@ -15,7 +15,7 @@ The main project's live data comes from the Python backend. The industry extensi
 
 ## Run
 
-Terminal 1, the Python backend for the Analog suite. It trains the model on the first run:
+Terminal 1, the Python backend for the main project. It trains the model on the first run:
 
 ```bash
 cd backend
@@ -50,7 +50,7 @@ cd dashboard && npm run typecheck && npm run sim:test && npm run sim:tour
 | `dashboard/app/` | Every page, under one root layout. `app/industry/` adds the extension's simulator and its `industry.css`, which is scoped to `.industry`. |
 | `dashboard/vigil/` | Industry extension source (simulator engine, components, headless tests), imported as `@vigil/*`. It is restyled to the site's tokens through a bridge block in `app/globals.css`. |
 
-## When the hardware arrives (Analog suite)
+## When the hardware arrives
 
 1. Upload an Arduino sketch that prints one `analogRead(A0)` value per line at 1 kHz.
 2. In `server.py`, replace `sim.step(CHUNK)` with a serial reader (pyserial) that returns those ADC counts.
