@@ -16,7 +16,7 @@ function Placeholder({ text, detail }: { text: string; detail?: string }) {
   return (
     <div className="absolute inset-0 grid place-items-center">
       <div className="text-center">
-        <div className="mx-auto mb-3 h-8 w-8 rounded-full border border-ink-500 border-t-bone" style={{ animation: 'spin-slow 1.1s linear infinite' }} />
+        <div className="mx-auto mb-3 h-8 w-8 rounded-full border border-ink-500 border-t-bone" style={{ animation: 'ind-spin 1.1s linear infinite' }} />
         <p className="label">{text}</p>
         {detail && <p className="mx-auto mt-2 max-w-[38ch] text-[13px] text-steel-300">{detail}</p>}
       </div>

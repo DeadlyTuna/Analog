@@ -2,7 +2,7 @@
 
 import { shallowEqual, useSnap } from '@vigil/components/sim/SimProvider'
 import { CLASS_META } from '@vigil/lib/sim/config'
-import { C } from '@vigil/lib/theme'
+import { C, rgba } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 /**
@@ -14,9 +14,9 @@ function Edge({ d, on, color = C.bone, packets = true, delay = 0 }: { d: string;
   return (
     <g>
       <path d={d} fill="none" stroke={C.ink600} strokeWidth="2" strokeLinejoin="round" />
-      {on && <path d={d} fill="none" stroke={color} strokeWidth="2" strokeOpacity="0.85" strokeDasharray="4 8" strokeLinejoin="round" style={{ animation: 'flow 0.7s linear infinite' }} />}
+      {on && <path d={d} fill="none" stroke={color} strokeWidth="2" strokeOpacity="0.85" strokeDasharray="4 8" strokeLinejoin="round" style={{ animation: 'ind-flow 0.7s linear infinite' }} />}
       {on && packets && (
-        <circle r="2.6" fill={color}>
+        <circle className="packet" r="2.6" fill={color}>
           <animateMotion dur="1.5s" begin={`${delay}s`} repeatCount="indefinite" path={d} />
         </circle>
       )}
@@ -52,12 +52,12 @@ function Node({
   return (
     <g style={{ transition: 'opacity 300ms' }} opacity={lit ? 1 : 0.5}>
       {lit && strong && <rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} rx="12" fill={color} opacity="0.18" filter="url(#pl-glow)" />}
-      <rect x={x} y={y} width={w} height={h} rx="10" fill={lit && strong ? `${color}14` : C.ink800} stroke={lit && strong ? color : C.ink500} strokeWidth={lit && strong ? 1.5 : 1} style={{ transition: 'stroke 300ms, fill 300ms' }} />
+      <rect x={x} y={y} width={w} height={h} rx="10" fill={lit && strong ? rgba(color, 0.08) : C.ink800} stroke={lit && strong ? color : C.ink500} strokeWidth={lit && strong ? 1.5 : 1} style={{ transition: 'stroke 300ms, fill 300ms' }} />
       <text x={x + w / 2} y={y + (small ? 17 : 19)} textAnchor="middle" className="diagram-text" fontSize={small ? 8.5 : 9.5} fill={lit && strong ? color : C.steel3} fontWeight="600">
         {title}
       </text>
       {value && (
-        <text x={x + w / 2} y={y + h / 2 + (sub ? 8 : 9)} textAnchor="middle" fontFamily="var(--font-mono)" fontSize={small ? 12 : 14} fill={C.bone} fontWeight="500" style={{ fontStretch: '80%' }}>
+        <text x={x + w / 2} y={y + h / 2 + (sub ? 8 : 9)} textAnchor="middle" fontFamily="var(--font-geist-mono)" fontSize={small ? 12 : 14} fill={C.bone} fontWeight="500" style={{ fontStretch: '80%' }}>
           {value}
         </text>
       )}
@@ -159,7 +159,7 @@ export function Pipeline({ className }: { className?: string }) {
           ].map((l) => (
             <g key={l.x}>
               {l.on && <circle cx={l.x} cy={708} r="9" fill={l.c} opacity="0.45" filter="url(#pl-glow)" />}
-              <circle cx={l.x} cy={708} r="5" fill={l.on ? l.c : C.ink600} style={{ animation: l.on && l.c === C.stop ? 'pulse-dot 0.5s infinite' : undefined }} />
+              <circle cx={l.x} cy={708} r="5" fill={l.on ? l.c : C.ink600} style={{ animation: l.on && l.c === C.stop ? 'ind-pulse-dot 0.5s infinite' : undefined }} />
             </g>
           ))}
         </svg>

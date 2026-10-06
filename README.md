@@ -1,13 +1,17 @@
 # AI-Based Motor Fault Detection: Analog Sensing + Embedded Firmware
 
-One website, two subsystems of the same idea: catch a motor fault before it stops the line.
+One website, one subject. The main project senses motor current with an analog front-end and classifies faults with a Random Forest. An industry extension shows the same idea scaled up to an industrial motor with embedded firmware.
 
-| Suite | Routes | What it shows |
-|---|---|---|
-| **Analog + AI** | `/`, `/lab`, `/how` | DC motor → 0.1 Ω shunt → LM358 diff amp (×20) → Sallen-Key low-pass (232 Hz) → Arduino ADC (10-bit, 1 kHz) → Python features → Random Forest. Live dashboard, 3D bench, schematic, and Bode plot. |
-| **Embedded firmware (Vigil)** | `/vigil`, `/vigil/control-room`, `/vigil/firmware`, `/vigil/present` | 1.5 kW induction motor digital twin and a simulated MCU (ADC → DMA → RTOS → DSP → rule-based classifier → alarms). Includes a guided demo and a presentation mode. |
+| Route | What it shows |
+|---|---|
+| `/` | Overview: the idea, the signal chain, the fault signatures, the analog concepts covered, and the cost. |
+| `/dashboard` | Live dashboard: AI verdict, current waveform, spectrum, timeline, and fault simulation. |
+| `/lab` | 3D bench with live readings on every part. |
+| `/how` | Live pipeline, circuit schematic, and the filter's Bode plot. |
+| `/present` | Viva presentation: 20 slides with live data and speaker notes (N key). Arrow keys move between slides, and `#n` links to a slide. |
+| `/industry` | Industry extension: an induction motor digital twin with MCU firmware (ADC, DMA, RTOS, DSP). Based on Vigil, by Sidhant. |
 
-Both suites are simulated, with no hardware needed. Each nav links to the other suite. See [docs/adr-001-integrate-vigil.md](docs/adr-001-integrate-vigil.md) for why they are co-hosted this way.
+The main project's live data comes from the Python backend. The industry extension runs entirely in the browser. See [docs/adr-001-integrate-vigil.md](docs/adr-001-integrate-vigil.md).
 
 ## Run
 
@@ -27,7 +31,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. The Vigil suite runs fully in the browser and does not need the backend.
+Open http://localhost:3000. The industry extension does not need the backend.
 
 ## Checks
 
@@ -43,11 +47,8 @@ cd dashboard && npm run typecheck && npm run sim:test && npm run sim:tour
 | `backend/motor.py` | Simulator for the motor and the analog chain, plus feature extraction. Circuit constants are at the top: set them to your real parts. |
 | `backend/train.py` | Trains the Random Forest on simulated 1 s windows. Prints accuracy, the confusion matrix and feature importance. |
 | `backend/server.py` | Streams samples, features and predictions over `ws://localhost:8765`. Accepts `{condition, severity}` commands. |
-| `dashboard/app/(analog)/` | Analog suite pages, with their own root layout and `globals.css`. |
-| `dashboard/app/(vigil)/` | Vigil suite pages, with their own root layout and `vigil.css`. |
-| `dashboard/vigil/` | Vigil source (simulator engine, components, headless tests). Imported as `@vigil/*`. |
-
-Moving between the two suites triggers a full page reload. This is expected, because each suite has its own root layout.
+| `dashboard/app/` | Every page, under one root layout. `app/industry/` adds the extension's simulator and its `industry.css`, which is scoped to `.industry`. |
+| `dashboard/vigil/` | Industry extension source (simulator engine, components, headless tests), imported as `@vigil/*`. It is restyled to the site's tokens through a bridge block in `app/globals.css`. |
 
 ## When the hardware arrives (Analog suite)
 

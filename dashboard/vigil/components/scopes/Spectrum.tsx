@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { BIN_HZ, BPFO_RATIO, SPEC_BINS } from '@vigil/lib/sim/config'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, mono, paint, resolve, rgba } from '@vigil/lib/theme'
 import { cn } from '@vigil/lib/utils'
 import { graticule, useCanvasLoop } from './useCanvasLoop'
 
@@ -49,15 +49,15 @@ export function Spectrum({ className, zoom = false }: Props) {
     const xOf = (k: number) => padL + (k / (nBins - 1)) * pw
 
     // y ticks
-    ctx.font = `500 9px ${MONO}`
+    ctx.font = `500 9px ${mono()}`
     ctx.textAlign = 'right'
     ctx.textBaseline = 'middle'
-    ctx.fillStyle = 'rgba(169,178,183,0.7)'
+    ctx.fillStyle = paint(C.steel2, 0.7)
     for (const v of [0.02, 0.05, 0.1, 0.2, 0.4, 0.8]) {
       if (v >= ym) continue
       const y = yOf(v)
       ctx.fillText(v < 0.1 ? v.toFixed(2) : v.toFixed(1), padL - 5, y)
-      ctx.strokeStyle = 'rgba(235,232,222,0.04)'
+      ctx.strokeStyle = paint(C.bone, 0.04)
       ctx.beginPath()
       ctx.moveTo(padL, y + 0.5)
       ctx.lineTo(padL + pw, y + 0.5)
@@ -82,14 +82,14 @@ export function Spectrum({ className, zoom = false }: Props) {
       if (k === 1) ctx.moveTo(x, y)
       else ctx.lineTo(x, y)
     }
-    ctx.strokeStyle = rgba(C.vib, 0.22)
+    ctx.strokeStyle = paint(C.vib, 0.22)
     ctx.lineWidth = 1
     ctx.stroke()
 
     // filled spectrum
     const grad = ctx.createLinearGradient(0, top, 0, top + ph)
-    grad.addColorStop(0, rgba(C.vib, 0.55))
-    grad.addColorStop(1, rgba(C.vib, 0.02))
+    grad.addColorStop(0, paint(C.vib, 0.55))
+    grad.addColorStop(1, paint(C.vib, 0.02))
     ctx.beginPath()
     ctx.moveTo(xOf(1), top + ph)
     for (let k = 1; k < nBins; k++) ctx.lineTo(xOf(k), yOf(mag[k]))
@@ -104,7 +104,7 @@ export function Spectrum({ className, zoom = false }: Props) {
       if (k === 1) ctx.moveTo(x, y)
       else ctx.lineTo(x, y)
     }
-    ctx.strokeStyle = C.vib
+    ctx.strokeStyle = resolve(C.vib)
     ctx.lineWidth = 1.3
     ctx.stroke()
 
@@ -118,7 +118,7 @@ export function Spectrum({ className, zoom = false }: Props) {
         { f: fr * BPFO_RATIO, label: 'BPFO', hot: ev.bearing, color: C.stop },
         { f: 100, label: '100 Hz', hot: ev.electrical, color: C.cur },
       ]
-      ctx.font = `600 9px ${MONO}`
+      ctx.font = `600 9px ${mono()}`
       ctx.textBaseline = 'top'
       const sorted = marks.filter((m) => m.f <= fMax).sort((p, q) => p.f - q.f)
       sorted.forEach((m, i) => {
@@ -127,14 +127,14 @@ export function Spectrum({ className, zoom = false }: Props) {
         const ly = top + 3 + row * 11
         const hot = m.hot > 0.3
         ctx.setLineDash([3, 3])
-        ctx.strokeStyle = rgba(hot ? m.color : C.steel2, hot ? 0.8 : 0.28)
+        ctx.strokeStyle = paint(hot ? m.color : C.steel2, hot ? 0.8 : 0.28)
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.moveTo(x + 0.5, ly + 10)
         ctx.lineTo(x + 0.5, top + ph)
         ctx.stroke()
         ctx.setLineDash([])
-        ctx.fillStyle = rgba(hot ? m.color : C.steel2, Math.min(1, 0.55 + 0.45 * m.hot))
+        ctx.fillStyle = paint(hot ? m.color : C.steel2, Math.min(1, 0.55 + 0.45 * m.hot))
         ctx.textAlign = x > padL + pw - 40 ? 'right' : 'left'
         ctx.fillText(m.label, x + (ctx.textAlign === 'left' ? 3 : -3), ly)
       })

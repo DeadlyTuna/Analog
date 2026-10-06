@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useStore } from '@vigil/components/sim/SimProvider'
-import { C, MONO } from '@vigil/lib/theme'
+import { C, mono } from '@vigil/lib/theme'
 import { RATED } from '@vigil/lib/sim/config'
 import { Y0, canvasTexture, clamp01, damp, hash, heatColor, heatOf } from './shared'
 
@@ -43,7 +43,7 @@ export function Motor({ rotRef }: { rotRef: React.MutableRefObject<number> }) {
         ctx.fillStyle = '#1b1f21'
         ctx.font = `700 40px "Big Shoulders Stencil Display Variable", Impact, sans-serif`
         ctx.fillText('VIGIL-M1  3~ INDUCTION MOTOR', 24, 56)
-        ctx.font = `500 26px ${MONO}`
+        ctx.font = `500 26px ${mono()}`
         const rows = [
           `${RATED.kW} kW   ${RATED.volts} V   ${RATED.freq} Hz`,
           `${RATED.current} A    ${RATED.rpm} min⁻¹   S1`,

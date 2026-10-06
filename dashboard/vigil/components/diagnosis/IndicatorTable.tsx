@@ -1,7 +1,7 @@
 'use client'
 
 import { useSnap } from '@vigil/components/sim/SimProvider'
-import { CHANNEL_COLOR, LEVEL_COLOR } from '@vigil/lib/theme'
+import { CHANNEL_COLOR, LEVEL_COLOR, rgba } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 /** All eight condition indicators on one shared 0 → failed scale (warning at 30 %, critical at 62 %). */
@@ -41,7 +41,7 @@ export function IndicatorTable({ className, compact = false, fill = false }: { c
               <span className="hidden text-right sm:block">
                 <span
                   className="mono rounded px-1.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.1em]"
-                  style={{ color: col, background: `${col}14` }}
+                  style={{ color: col, background: rgba(col, 0.08) }}
                 >
                   {lvl === 2 ? 'crit' : lvl === 1 ? 'warn' : 'ok'}
                 </span>

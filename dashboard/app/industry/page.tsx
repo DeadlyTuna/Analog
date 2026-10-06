@@ -12,7 +12,7 @@ import { SectionHead } from '@vigil/components/ui/SectionHead'
 
 function Section({ id, kicker, title, note, children }: { id: string; kicker: string; title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-20 pt-24 sm:pt-28">
+    <section id={id} className="scroll-mt-36 pt-24 sm:pt-28">
       <Reveal>
         <SectionHead className="mb-6" kicker={kicker} title={title} note={note} />
       </Reveal>
@@ -24,6 +24,21 @@ function Section({ id, kicker, title, note, children }: { id: string; kicker: st
 export default function Home() {
   return (
     <>
+      <div className="mx-auto max-w-[1680px] px-4 pt-6 sm:px-6">
+        <aside className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+          <p className="text-sm text-ink-2">Extension of the main project</p>
+          <p className="mt-2 max-w-3xl leading-relaxed">
+            The main project senses one signal, the motor current, with an analog front-end and classifies it with a Random Forest
+            on a laptop. At industrial scale the same idea runs on an embedded controller with four sensors (vibration, temperature,
+            current, speed), real-time firmware (ADC, DMA, interrupts, RTOS scheduling, DSP) and rule-based detection with forecasting.
+          </p>
+          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
+            <Link href="/" className="underline underline-offset-2 hover:text-ink">Main project overview</Link>
+            <Link href="/present" className="underline underline-offset-2 hover:text-ink">Presentation</Link>
+            <span>Original simulator: Vigil, by Sidhant.</span>
+          </p>
+        </aside>
+      </div>
       <Hero />
       <div className="mx-auto max-w-[1680px] px-4 sm:px-6">
         <Section
@@ -84,7 +99,7 @@ export default function Home() {
             <p className="mx-auto mt-5 max-w-[48ch] text-[18px] leading-snug text-steel-200 text-pretty">
               Wear a bearing, block the fan, overload the shaft. Then watch how long the firmware takes to notice.
             </p>
-            <Link href="/vigil/control-room" className="btn btn-primary mt-8 !h-12 !px-7 !text-[16px]">
+            <Link href="/industry/control-room" className="btn btn-primary mt-8 !h-12 !px-7 !text-[16px]">
               Open the control room <ArrowRight size={18} aria-hidden />
             </Link>
           </div>

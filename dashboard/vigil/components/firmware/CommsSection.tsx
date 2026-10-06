@@ -4,7 +4,7 @@ import { CheckCircle2, XCircle } from 'lucide-react'
 import { shallowEqual, useSnap, useStore } from '@vigil/components/sim/SimProvider'
 import { CLASS_ORDER } from '@vigil/lib/sim/config'
 import { FRAME_FIELDS, MODBUS_REGS, hex2, parseFrame } from '@vigil/lib/sim/protocol'
-import { C } from '@vigil/lib/theme'
+import { C, rgba } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 const TONE: Record<string, string> = {
@@ -40,7 +40,7 @@ function FrameDump({ frame }: { frame: Uint8Array | null }) {
           <p className="mono mb-1 text-[9px] font-medium uppercase tracking-[0.12em]" style={{ color: TONE[f.tone] }}>
             {f.name}
           </p>
-          <p className="mono flex gap-[5px] rounded border px-1.5 py-1 text-[12.5px]" style={{ color: TONE[f.tone], borderColor: `${TONE[f.tone]}44`, background: `${TONE[f.tone]}0f` }}>
+          <p className="mono flex gap-[5px] rounded border px-1.5 py-1 text-[12.5px]" style={{ color: TONE[f.tone], borderColor: rgba(TONE[f.tone], 0.27), background: rgba(TONE[f.tone], 0.06) }}>
             {Array.from(frame.slice(f.from, f.to), (b, i) => (
               <span key={i}>{hex2(b)}</span>
             ))}

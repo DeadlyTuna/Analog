@@ -1,5 +1,6 @@
 'use client'
 
+import { MotionConfig } from 'motion/react'
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { SimStore, type StoreSnapshot } from '@vigil/lib/sim/store'
 
@@ -12,15 +13,18 @@ export function SimProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     store.start()
-    // safety net: never leave the simulator held if the splash does not run
-    const t = window.setTimeout(() => store.release(), 4000)
+    // no boot splash in the combined site: run straight away
+    store.release()
     return () => {
-      window.clearTimeout(t)
       store.stop()
     }
   }, [store])
 
-  return <Ctx.Provider value={store}>{children}</Ctx.Provider>
+  return (
+    <Ctx.Provider value={store}>
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
+    </Ctx.Provider>
+  )
 }
 
 /** The store itself — stable for the lifetime of the app. Use for actions and for reading sim buffers in rAF loops. */

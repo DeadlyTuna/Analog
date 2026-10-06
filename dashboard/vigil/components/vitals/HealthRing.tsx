@@ -36,7 +36,7 @@ export function HealthRing({ size = 236 }: { size?: number }) {
         </defs>
 
         {/* slow scanner ring */}
-        <g style={{ transformOrigin: '110px 110px', animation: 'spin-slow 40s linear infinite' }}>
+        <g style={{ transformOrigin: '110px 110px', animation: 'ind-spin 40s linear infinite' }}>
           <circle cx="110" cy="110" r="105" fill="none" stroke="rgba(235,232,222,0.08)" strokeWidth="1" strokeDasharray="2 7" />
         </g>
 

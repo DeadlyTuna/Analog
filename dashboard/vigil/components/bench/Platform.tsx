@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useStore } from '@vigil/components/sim/SimProvider'
-import { STATE_COLOR, MONO } from '@vigil/lib/theme'
+import { STATE_COLOR, mono } from '@vigil/lib/theme'
 import { TOWER_POS } from './StackTower'
 import { canvasTexture } from './shared'
 
@@ -54,7 +54,7 @@ export function Platform() {
             ctx.save()
             ctx.rotate(rad + Math.PI / 2)
             ctx.fillStyle = 'rgba(235,232,222,0.38)'
-            ctx.font = `500 22px ${MONO}`
+            ctx.font = `500 22px ${mono()}`
             ctx.textAlign = 'center'
             ctx.fillText(String(a), 0, -(w / 2) * 0.93)
             ctx.restore()

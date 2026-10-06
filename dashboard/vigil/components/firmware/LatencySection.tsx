@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useCanvasLoop } from '@vigil/components/scopes/useCanvasLoop'
 import { shallowEqual, useSnap, useStore } from '@vigil/components/sim/SimProvider'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, TASK_COLOR, mono, paint, resolve, rgba, tint } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 /** Jitter plot: every recent job's response time as a tick on a log axis, with the task deadline marked. */
@@ -20,34 +20,34 @@ function RespScatter() {
     const hi = Math.log10(3000)
     const x = (ms: number) => labelW + ((Math.log10(Math.max(0.1, ms)) - lo) / (hi - lo)) * pw
     ctx.clearRect(0, 0, w, h)
-    ctx.font = `500 8.5px ${MONO}`
+    ctx.font = `500 8.5px ${mono()}`
     ctx.textBaseline = 'top'
     ctx.textAlign = 'center'
     for (const v of [0.1, 1, 10, 100, 1000]) {
       const xx = Math.round(x(v)) + 0.5
-      ctx.strokeStyle = 'rgba(235,232,222,0.08)'
+      ctx.strokeStyle = paint(C.bone, 0.08)
       ctx.beginPath()
       ctx.moveTo(xx, 0)
       ctx.lineTo(xx, h - axisH)
       ctx.stroke()
-      ctx.fillStyle = 'rgba(135,147,154,0.9)'
+      ctx.fillStyle = paint(C.steel3, 0.9)
       ctx.fillText(v >= 1 ? `${v} ms` : `${v}`, xx, h - axisH + 4)
     }
     tasks.forEach((t, i) => {
       const y = i * rowH
-      const spec = TASK_COLORS[t.def.id] ?? C.bone
-      ctx.fillStyle = spec
+      const spec = TASK_COLOR[t.def.id] ?? C.bone
+      ctx.fillStyle = resolve(spec)
       ctx.textAlign = 'left'
       ctx.textBaseline = 'middle'
-      ctx.font = `600 10px ${MONO}`
+      ctx.font = `600 10px ${mono()}`
       ctx.fillText(t.def.id, 8, y + rowH / 2)
       const n = t.resp.readLast(160, buf.current)
-      ctx.fillStyle = rgba(spec, 0.35)
+      ctx.fillStyle = paint(spec, 0.35)
       for (let k = 0; k < n; k++) ctx.fillRect(Math.round(x(buf.current[k])), y + rowH * 0.28, 2, rowH * 0.44)
       // deadline
       const dx = Math.round(x(t.def.deadlineMs)) + 0.5
       ctx.setLineDash([3, 3])
-      ctx.strokeStyle = rgba(C.stop, 0.85)
+      ctx.strokeStyle = paint(C.stop, 0.85)
       ctx.beginPath()
       ctx.moveTo(dx, y + 3)
       ctx.lineTo(dx, y + rowH - 3)
@@ -55,20 +55,19 @@ function RespScatter() {
       ctx.setLineDash([])
       if (t.stats.jobs > 0) {
         const ax = Math.round(x(t.stats.respSum / t.stats.jobs))
-        ctx.fillStyle = C.bone
+        ctx.fillStyle = resolve(C.bone)
         ctx.fillRect(ax - 1, y + rowH * 0.18, 2.5, rowH * 0.64)
       }
     })
     ctx.textAlign = 'right'
     ctx.textBaseline = 'top'
-    ctx.fillStyle = rgba(C.stop, 0.9)
-    ctx.font = `500 8.5px ${MONO}`
+    ctx.fillStyle = paint(C.stop, 0.9)
+    ctx.font = `500 8.5px ${mono()}`
     ctx.fillText('┆ deadline', w - 4, 3)
   }, 15)
   return <canvas ref={ref} className="block h-full w-full" />
 }
 
-const TASK_COLORS: Record<string, string> = { ACQ: '#5ad7ff', DSP: '#b79cff', FDT: '#ff9a5a', HLTH: '#6ee7a8', COMM: '#f0d46a' }
 
 export function LatencySection() {
   const detect = useSnap((s) => s.detect, shallowEqual)
@@ -80,7 +79,7 @@ export function LatencySection() {
   const chain = [
     { k: 'Wait for the next DMA half-buffer', ms: 25, c: C.vib },
     { k: 'Window fills with fault data', ms: 200, c: C.cur },
-    { k: 'DSP computes features', ms: dsp, c: '#b79cff' },
+    { k: 'DSP computes features', ms: dsp, c: C.cur },
     { k: 'Smoothing over two windows', ms: 100, c: C.rpm },
     { k: `Debounce: ${cfg.warnDebounce} agreeing cycles`, ms: cfg.warnDebounce * 100, c: C.caution },
   ]
@@ -173,7 +172,7 @@ export function LatencySection() {
               return (
                 <li key={t.id}>
                   <div className="flex items-baseline justify-between">
-                    <span className="mono text-[11px] font-medium" style={{ color: t.color }}>
+                    <span className="mono text-[11px] font-medium" style={{ color: tint(TASK_COLOR[t.id]) }}>
                       {t.id}
                     </span>
                     <span className={cn('mono text-[11px]', used > 1 ? 'text-stop' : 'text-steel-200')}>

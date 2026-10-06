@@ -3,12 +3,12 @@
 import { shallowEqual, useSnap, useStore } from '@vigil/components/sim/SimProvider'
 import { MCU } from '@vigil/lib/sim/config'
 import type { LogEntry } from '@vigil/lib/sim/firmware'
-import { C } from '@vigil/lib/theme'
+import { C, TASK_COLOR, tint } from '@vigil/lib/theme'
 import { bytes, clock, cn, fmt, hex } from '@vigil/lib/utils'
 
-const TONE: Record<string, string> = { dma: C.vib, ring: '#7ec8e3', fft: C.cur, spec: C.forecast, trend: C.temp, stack: C.go, heap: C.caution, bss: C.steel3 }
+const TONE: Record<string, string> = { dma: C.vib, ring: C.vib, fft: C.cur, spec: C.forecast, trend: C.temp, stack: C.go, heap: C.caution, bss: C.steel3 }
 const LEVEL_CODE: Record<LogEntry['level'], number> = { info: 1, ok: 2, warn: 3, crit: 4, pred: 5, sim: 1 }
-const CELL = ['#171b1d', C.steel3, C.go, C.caution, C.stop, C.forecast]
+const CELL = [C.ink700, C.steel3, C.go, C.caution, C.stop, C.forecast]
 
 function djb(s: string): number {
   let h = 5381
@@ -107,11 +107,11 @@ export function MemorySection() {
               const f = t.stackUsed / t.stackWords
               return (
                 <li key={t.id} className="grid grid-cols-[56px_1fr_92px] items-center gap-3">
-                  <span className="mono text-[11px] font-medium" style={{ color: t.color }}>
+                  <span className="mono text-[11px] font-medium" style={{ color: tint(TASK_COLOR[t.id]) }}>
                     {t.id}
                   </span>
                   <span className="h-2 overflow-hidden rounded-full bg-ink-600">
-                    <span className="block h-full rounded-full transition-[width] duration-500" style={{ width: `${f * 100}%`, background: f > 0.8 ? C.stop : f > 0.6 ? C.caution : t.color }} />
+                    <span className="block h-full rounded-full transition-[width] duration-500" style={{ width: `${f * 100}%`, background: f > 0.8 ? C.stop : f > 0.6 ? C.caution : TASK_COLOR[t.id] }} />
                   </span>
                   <span className="mono text-right text-[11px] text-steel-200">
                     {t.stackUsed} / {t.stackWords}

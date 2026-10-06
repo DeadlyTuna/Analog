@@ -11,7 +11,7 @@ import { SectionHead } from '@vigil/components/ui/SectionHead'
 import { HealthPanel } from '@vigil/components/vitals/HealthPanel'
 import { SensorCard } from '@vigil/components/vitals/SensorCard'
 
-export const metadata = { title: 'Control room — Vigil' }
+export const metadata = { title: 'Control room — Industry extension' }
 
 export default function ControlRoom() {
   return (

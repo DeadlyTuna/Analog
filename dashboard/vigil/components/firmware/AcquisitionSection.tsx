@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { useCanvasLoop } from '@vigil/components/scopes/useCanvasLoop'
 import { useSnap, useStore } from '@vigil/components/sim/SimProvider'
 import { DMA_HALF, DMA_LEN, FS } from '@vigil/lib/sim/config'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, mono, paint, resolve, rgba } from '@vigil/lib/theme'
 import { fmt } from '@vigil/lib/utils'
 
 const STEPS = [
@@ -29,9 +29,9 @@ function DmaView({ channel }: { channel: 'vib' | 'cur' }) {
     const span = vib ? 520 : 900
     const bw = w / DMA_LEN
     // half-buffer shading
-    ctx.fillStyle = 'rgba(92,157,255,0.05)'
+    ctx.fillStyle = paint(C.forecast, 0.05)
     ctx.fillRect(0, 0, w / 2, h)
-    ctx.strokeStyle = 'rgba(235,232,222,0.07)'
+    ctx.strokeStyle = paint(C.bone, 0.07)
     ctx.beginPath()
     ctx.moveTo(0, mid + 0.5)
     ctx.lineTo(w, mid + 0.5)
@@ -41,14 +41,14 @@ function DmaView({ channel }: { channel: 'vib' | 'cur' }) {
       const a = 1 - (age / DMA_LEN) * 0.82
       const v = (buf[i] - 2048) / span
       const y = mid - Math.max(-1, Math.min(1, v)) * (mid - 6)
-      ctx.fillStyle = rgba(color, a)
+      ctx.fillStyle = paint(color, a)
       ctx.fillRect(i * bw + 0.5, Math.min(y, mid), Math.max(1, bw - 1), Math.max(1.5, Math.abs(y - mid)))
     }
     // markers
-    ctx.font = `500 9px ${MONO}`
+    ctx.font = `500 9px ${mono()}`
     ctx.textBaseline = 'top'
     ctx.setLineDash([3, 3])
-    ctx.strokeStyle = rgba(C.forecast, 0.7)
+    ctx.strokeStyle = paint(C.forecast, 0.7)
     ;[DMA_HALF, 0].forEach((idx) => {
       const x = Math.round((idx / DMA_LEN) * w) + 0.5
       ctx.beginPath()
@@ -57,20 +57,20 @@ function DmaView({ channel }: { channel: 'vib' | 'cur' }) {
       ctx.stroke()
     })
     ctx.setLineDash([])
-    ctx.fillStyle = rgba(C.forecast, 0.95)
+    ctx.fillStyle = paint(C.forecast, 0.95)
     ctx.textAlign = 'left'
     ctx.fillText('HT ◂ half transfer', w / 2 + 4, 4)
     ctx.fillText('TC ▸ transfer complete', 4, 4)
     // write pointer
     const px = (pos / DMA_LEN) * w
-    ctx.strokeStyle = C.bone
+    ctx.strokeStyle = resolve(C.bone)
     ctx.lineWidth = 1.5
     ctx.beginPath()
     ctx.moveTo(px, 0)
     ctx.lineTo(px, h)
     ctx.stroke()
     ctx.lineWidth = 1
-    ctx.fillStyle = C.bone
+    ctx.fillStyle = resolve(C.bone)
     ctx.textAlign = px > w - 90 ? 'right' : 'left'
     ctx.fillText(`write ▸ [${pos}]`, px + (px > w - 90 ? -5 : 5), h - 13)
   }, 30)

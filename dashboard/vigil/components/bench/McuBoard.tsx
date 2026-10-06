@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useStore } from '@vigil/components/sim/SimProvider'
-import { C, MONO } from '@vigil/lib/theme'
+import { C, mono } from '@vigil/lib/theme'
 import { canvasTexture } from './shared'
 
 export const BOARD_POS = new THREE.Vector3(-0.9, 0.5, 3.55)
@@ -56,7 +56,7 @@ export function McuBoard() {
         ctx.fillStyle = '#e9efe9'
         ctx.font = `700 34px "Big Shoulders Stencil Display Variable", Impact, sans-serif`
         ctx.fillText('VIGIL-M1  REV C', 28, 56)
-        ctx.font = `500 17px ${MONO}`
+        ctx.font = `500 17px ${mono()}`
         ;['VIB  ADC0', 'CUR  ADC1', 'TMP  ADC4', 'RPM  TIM2'].forEach((t, i) => ctx.fillText(t, 78 + i * 190, 150))
         ctx.fillText('PA5 ●G   PA6 ●Y   PA7 ●R', w - 330, 520)
         ctx.fillText('PB0 BZR   PB1 K1', w - 330, 548)
@@ -73,10 +73,10 @@ export function McuBoard() {
         ctx.fillStyle = '#0a0b0c'
         ctx.fillRect(0, 0, w, h)
         ctx.fillStyle = '#c9cdd0'
-        ctx.font = `600 26px ${MONO}`
+        ctx.font = `600 26px ${mono()}`
         ctx.fillText('STM32', 62, 98)
         ctx.fillText('F411CE', 52, 130)
-        ctx.font = `500 14px ${MONO}`
+        ctx.font = `500 14px ${mono()}`
         ctx.fillStyle = '#7d868b'
         ctx.fillText('ARM Cortex-M4F', 52, 160)
         ctx.beginPath()

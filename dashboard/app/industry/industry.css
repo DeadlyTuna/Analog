@@ -1,0 +1,230 @@
+/* =====================================================================
+   Industry extension (Vigil) — component classes, scoped to .industry.
+   Every colour comes from the site tokens in app/globals.css, so these
+   follow light and dark mode. Utilities still win (components layer).
+   ===================================================================== */
+
+@layer theme, base, components, utilities;
+
+/* machine-state colour, registered so it can transition between states */
+@property --state {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #898781;
+}
+
+@layer components {
+  .industry {
+    --bg: var(--page);
+    --panel: var(--surface);
+    --panel-hi: var(--surface-2);
+    --line-hi: color-mix(in srgb, var(--ink) 18%, transparent);
+    --fg: var(--ink);
+    --fg-2: var(--ink-2);
+    --fg-3: var(--ink-2);
+    --state: var(--muted);
+    transition: --state 900ms ease;
+  }
+  html[data-state="healthy"] .industry { --state: var(--good); }
+  html[data-state="warning"] .industry { --state: var(--warning); }
+  html[data-state="critical"] .industry,
+  html[data-state="tripped"] .industry { --state: var(--critical); }
+  html[data-state="startup"] .industry { --state: var(--series); }
+  html[data-state="off"] .industry { --state: var(--muted); }
+
+  /* ---- type roles ---- */
+  .industry .tabular { font-variant-numeric: tabular-nums; }
+  .industry .stencil,
+  .industry .display {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .industry .stencil { line-height: 1; }
+  .industry .label {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--fg-3);
+  }
+  .industry .label::first-letter { text-transform: uppercase; }
+  .industry .panel-head > .label:first-child { font-size: 14px; }
+  .industry .mono {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .industry .readout {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .industry .diagram-text { font-family: var(--font-geist-sans), system-ui, sans-serif; }
+
+  /* ---- surfaces ---- */
+  .industry .panel {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    transition: border-color 300ms ease;
+  }
+  .industry .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 4px;
+  }
+  .industry .panel-body { padding: 16px; }
+
+  /* plot well for scopes and canvases */
+  .industry .screen {
+    position: relative;
+    background: var(--bg);
+    border-radius: 12px;
+    box-shadow: inset 0 0 0 1px var(--line);
+    overflow: hidden;
+  }
+
+  /* warning tape, used on the fault-injection controls */
+  .industry .hazard {
+    background: repeating-linear-gradient(-45deg, var(--warning) 0 6px, color-mix(in srgb, var(--warning) 22%, transparent) 6px 12px);
+  }
+
+  /* soft highlight that follows the pointer (set --mx / --my from JS) */
+  .industry .spot { position: relative; isolation: isolate; }
+  .industry .spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 250ms ease;
+    background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--ink) 5%, transparent), transparent 60%);
+  }
+  .industry .spot:hover::before { opacity: 1; }
+
+  /* ---- controls ---- */
+  .industry .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--fg);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+  .industry .btn:hover { border-color: var(--line-hi); background: var(--panel-hi); }
+  .industry .btn:active { transform: translateY(1px); }
+  .industry .btn[disabled] { opacity: 0.4; pointer-events: none; }
+  .industry .btn[aria-pressed="true"] { border-color: var(--line-hi); background: var(--panel-hi); }
+  .industry .btn-primary,
+  .industry .btn-primary:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .industry .btn-primary:hover { opacity: 0.88; }
+  .industry .btn-ghost { background: transparent; }
+  .industry .btn-sm { height: 32px; padding: 0 10px; font-size: 13px; border-radius: 10px; }
+  .industry .btn-icon { width: 36px; padding: 0; }
+  .industry .btn-icon.btn-sm { width: 32px; }
+
+  .industry .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--fg-2);
+    white-space: nowrap;
+  }
+
+  /* horizontal fader (range input) */
+  .industry .fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 24px;
+    background: transparent;
+    cursor: pointer;
+    --p: 50%;
+    --fc: var(--series);
+  }
+  .industry .fader::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--fc) var(--p), var(--axis) var(--p));
+  }
+  .industry .fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    margin-top: -6px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line-hi);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+  .industry .fader::-moz-range-track { height: 4px; border-radius: 2px; background: var(--axis); }
+  .industry .fader::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--fc); }
+  .industry .fader::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line-hi);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  /* ---- lamps (GPIO LEDs) ---- */
+  .industry .lamp {
+    --c: var(--muted);
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--c) 22%, var(--surface-2));
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: background 120ms ease, box-shadow 120ms ease;
+  }
+  .industry .lamp.on {
+    background: var(--c);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent);
+  }
+  .industry .lamp-g { --c: var(--good); }
+  .industry .lamp-y { --c: var(--warning); }
+  .industry .lamp-r { --c: var(--critical); }
+  .industry .lamp-b { --c: var(--series); }
+
+  .industry .no-scrollbar { scrollbar-width: none; }
+  .industry .no-scrollbar::-webkit-scrollbar { display: none; }
+}
+
+@keyframes ind-flow { to { stroke-dashoffset: -24; } }
+@keyframes ind-pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes ind-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .industry *,
+  .industry *::before,
+  .industry *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  /* SMIL packets ignore CSS animation settings */
+  .industry .packet { display: none; }
+}

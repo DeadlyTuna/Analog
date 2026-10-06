@@ -5,7 +5,7 @@ import { StatePill } from '@vigil/components/shell/Nav'
 import { shallowEqual, useSnap } from '@vigil/components/sim/SimProvider'
 import { CLASS_META, FAULT_META, PREDICT_HORIZON_S } from '@vigil/lib/sim/config'
 import { headline } from '@vigil/lib/diagnosis'
-import { C } from '@vigil/lib/theme'
+import { C, rgba } from '@vigil/lib/theme'
 import { fmt, span } from '@vigil/lib/utils'
 import { HealthRing } from './HealthRing'
 
@@ -28,7 +28,7 @@ export function HealthPanel() {
             <p className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
               <span className="label">also</span>
               {diag.also.map((k) => (
-                <span key={k} className="chip !text-caution" style={{ borderColor: `${C.caution}66` }}>
+                <span key={k} className="chip !text-caution" style={{ borderColor: rgba(C.caution, 0.4) }}>
                   {CLASS_META[k].label}
                 </span>
               ))}
@@ -55,7 +55,7 @@ function Forecast() {
     return (
       <div
         className="mt-4 rounded-lg border p-3"
-        style={{ borderColor: `${C.forecast}77`, background: `${C.forecast}14`, boxShadow: `0 0 26px -10px ${C.forecast}` }}
+        style={{ borderColor: rgba(C.forecast, 0.47), background: rgba(C.forecast, 0.08), boxShadow: `0 0 26px -10px ${C.forecast}` }}
         role="status"
       >
         <div className="flex items-center gap-3">

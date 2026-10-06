@@ -1,8 +1,12 @@
 # ADR-001: Integrate Vigil into the Analog dashboard as a co-hosted suite
 
-**Status:** Accepted
+**Status:** Superseded (2026-10-07). See the revision below.
 **Date:** 2026-10-06
 **Deciders:** Harsh (Analog project), Sidhant (Vigil project)
+
+## Revision (2026-10-07)
+
+The co-hosted design was replaced with a **real merge**, at the project owner's request. The site now has one root layout, one nav and one design system (the Analog tokens, in light and dark mode). The main story is the analog sensing + AI project. Vigil is kept as an **industry extension** at `/industry`, restyled through a token bridge in `app/globals.css` and the scoped `app/industry/industry.css`. Vigil's own presentation was replaced by a new deck at `/present` written for this subject. Live data for the main project stays on the Python backend.
 
 ## Context
 

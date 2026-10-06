@@ -1,25 +1,28 @@
 import type { FsmState } from '@vigil/lib/sim/config'
 
-/** Hex mirrors of the CSS tokens, for canvas and WebGL code that cannot read CSS variables. */
+/**
+ * Colours as CSS references to the site tokens (app/globals.css), so DOM and SVG follow light and dark by themselves.
+ * Canvas and WebGL cannot read var(): pass a colour through resolve() (or paint() for an alpha) first.
+ */
 export const C = {
-  bg: '#0f1112',
-  ink950: '#0a0c0d',
-  ink800: '#171a1c',
-  ink700: '#1e2225',
-  ink600: '#292e32',
-  ink500: '#394045',
-  ink400: '#556067',
-  steel3: '#87939a',
-  steel2: '#a9b2b7',
-  bone: '#ebe8de',
-  go: '#2ee67c',
-  caution: '#ffb21e',
-  stop: '#ff4338',
-  forecast: '#5c9dff',
-  vib: '#44d9ff',
-  temp: '#ff8a4c',
-  cur: '#b79cff',
-  rpm: '#ebe8de',
+  bg: 'var(--page)',
+  ink950: 'var(--page)',
+  ink800: 'var(--surface)',
+  ink700: 'var(--surface-2)',
+  ink600: 'var(--grid)',
+  ink500: 'var(--axis)',
+  ink400: 'var(--muted)',
+  steel3: 'var(--muted)',
+  steel2: 'var(--ink-2)',
+  bone: 'var(--ink)',
+  go: 'var(--good)',
+  caution: 'var(--warning)',
+  stop: 'var(--critical)',
+  forecast: 'var(--series)',
+  vib: 'var(--ch-vib)',
+  temp: 'var(--ch-temp)',
+  cur: 'var(--ch-cur)',
+  rpm: 'var(--ch-rpm)',
 } as const
 
 export const STATE_COLOR: Record<FsmState, string> = {
@@ -35,11 +38,37 @@ export const LEVEL_COLOR = [C.go, C.caution, C.stop] as const
 
 export const CHANNEL_COLOR = { vib: C.vib, temp: C.temp, cur: C.cur, rpm: C.rpm } as const
 
-export function rgba(hex: string, a: number): string {
-  const h = hex.replace('#', '')
-  const n = parseInt(h.length === 3 ? h.replace(/./g, '$&$&') : h, 16)
+/** RTOS task colours, keyed by task id (the hex in lib/sim/config.ts is tuned for a dark page only). */
+export const TASK_COLOR: Record<string, string> = { ACQ: C.vib, DSP: C.cur, FDT: C.temp, HLTH: C.go, COMM: C.forecast, STRESS: C.stop }
+
+// current token values, re-read after a light/dark switch
+let cache: Record<string, string> = {}
+if (typeof window !== 'undefined') matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => (cache = {}))
+const cssVar = (name: string, fallback: string) =>
+  typeof window === 'undefined' ? fallback : (cache[name] ??= getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback)
+
+/** A concrete colour for canvas / WebGL: `var(--x)` becomes its current value, anything else passes through. */
+export function resolve(c: string): string {
+  const m = /^var\((--[\w-]+)\)$/.exec(c)
+  return m ? cssVar(m[1], '#898781') : c
+}
+
+/** Colour at an alpha. Hex gives rgba(); a token gives color-mix(), which only DOM/SVG understand — canvas uses paint(). */
+export function rgba(c: string, a: number): string {
+  if (!c.startsWith('#')) return `color-mix(in srgb, ${c} ${+(a * 100).toFixed(1)}%, transparent)`
+  const h = c.slice(1)
+  const n = parseInt(h.length === 3 ? h.replace(/./g, '$&$&') : h.slice(0, 6), 16)
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`
 }
+
+/** rgba() for canvas: resolves the token first. */
+export const paint = (c: string, a = 1) => rgba(resolve(c), a)
+
+/** A status or channel colour pulled toward the text colour, so words stay readable on light and dark pages. */
+export const tint = (c: string) => `color-mix(in oklab, ${c} 55%, var(--ink))`
+
+/** Canvas font stack (canvas cannot read var(--font-geist-mono) either). */
+export const mono = () => `${cssVar('--font-geist-mono', 'ui-monospace')}, ui-monospace, monospace`
 
 /** Infrared-camera style colour ramp used for heat and for the spectrogram. 0…1 → rgb. */
 const IRON: [number, number, number, number][] = [
@@ -76,5 +105,3 @@ export const IRON_LUT: Uint8ClampedArray = (() => {
   }
   return lut
 })()
-
-export const MONO = '"Martian Mono Variable", ui-monospace, Consolas, monospace'

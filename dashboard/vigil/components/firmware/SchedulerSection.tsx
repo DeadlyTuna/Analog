@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Segmented } from '@vigil/components/ui/Segmented'
 import { useSnap, useStore } from '@vigil/components/sim/SimProvider'
 import { CLOCK_OPTIONS, STRESS_SPEC } from '@vigil/lib/sim/config'
-import { C } from '@vigil/lib/theme'
+import { C, TASK_COLOR, rgba, tint } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 import { Gantt } from './Gantt'
 
@@ -104,7 +104,7 @@ export function SchedulerSection() {
           <div className="flex w-[min(360px,55%)] items-center gap-3">
             <div className="flex h-2 flex-1 overflow-hidden rounded-full bg-ink-600" title={`CPU ${fmt(cpu * 100, 1)} %`}>
               {tasks.map((t) => (
-                <span key={t.id} style={{ width: `${Math.min(100, t.load * 100)}%`, background: t.color }} />
+                <span key={t.id} style={{ width: `${Math.min(100, t.load * 100)}%`, background: TASK_COLOR[t.id] }} />
               ))}
               <span style={{ width: `${isr * 100}%`, background: C.forecast }} />
             </div>
@@ -129,7 +129,7 @@ export function SchedulerSection() {
                 return (
                   <tr key={t.id} className="border-b border-ink-700/70 last:border-0">
                     <td className="px-3 py-3">
-                      <span className="stencil text-[28px] leading-none" style={{ color: t.color }}>
+                      <span className="stencil text-[28px] leading-none" style={{ color: tint(TASK_COLOR[t.id]) }}>
                         {t.prio}
                       </span>
                     </td>
@@ -141,7 +141,7 @@ export function SchedulerSection() {
                     <td className="mono px-3 py-3 text-right text-[12px] text-steel-200">{t.periodMs} ms</td>
                     <td className="mono px-3 py-3 text-right text-[12px] text-steel-200">{fmt(t.wcetMs, 2)} ms</td>
                     <td className="px-3 py-3">
-                      <span className="mono inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: st.c, background: `${st.c}16` }}>
+                      <span className="mono inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: st.c, background: rgba(st.c, 0.09) }}>
                         <span className="h-1.5 w-1.5 rounded-full" style={{ background: st.c }} />
                         {st.label}
                       </span>

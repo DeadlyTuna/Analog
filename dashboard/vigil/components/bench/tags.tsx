@@ -4,7 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, type ReactNode } from 'react'
 import * as THREE from 'three'
 import { useSnap } from '@vigil/components/sim/SimProvider'
-import { C } from '@vigil/lib/theme'
+import { C, rgba } from '@vigil/lib/theme'
 import { fmt } from '@vigil/lib/utils'
 import { BOARD_POS } from './McuBoard'
 import { TAG_END } from './Sensors'
@@ -122,7 +122,7 @@ function SensorTag({ ch }: { ch: 'vib' | 'temp' | 'cur' | 'rpm' }) {
     }
   })
   return (
-    <div className="flex items-stretch overflow-hidden whitespace-nowrap rounded-md border bg-ink-900/85 backdrop-blur" style={{ borderColor: `${COLOR[ch]}88` }}>
+    <div className="flex items-stretch overflow-hidden whitespace-nowrap rounded-md border bg-ink-900/85 backdrop-blur" style={{ borderColor: rgba(COLOR[ch], 0.53) }}>
       <span className="grid w-[18px] place-items-center font-mono text-[10px] font-bold text-ink-950" style={{ background: COLOR[ch] }}>
         {N[ch]}
       </span>

@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { ADC_DT_MS } from '@vigil/lib/sim/config'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, mono, paint, resolve, rgba } from '@vigil/lib/theme'
 import { cn } from '@vigil/lib/utils'
 import { graticule, useCanvasLoop } from './useCanvasLoop'
 
@@ -108,17 +108,17 @@ export function Scope({ channel, className }: Props) {
       }
     }
     path()
-    ctx.strokeStyle = rgba(color, 0.2)
+    ctx.strokeStyle = paint(color, 0.2)
     ctx.lineWidth = 5
     ctx.stroke()
     path()
-    ctx.strokeStyle = color
+    ctx.strokeStyle = resolve(color)
     ctx.lineWidth = 1.4
     ctx.stroke()
 
     // labels
-    ctx.font = `500 9.5px ${MONO}`
-    ctx.fillStyle = 'rgba(169,178,183,0.75)'
+    ctx.font = `500 9.5px ${mono()}`
+    ctx.fillStyle = paint(C.steel2, 0.75)
     ctx.textBaseline = 'top'
     ctx.textAlign = 'left'
     ctx.fillText(`+${ym.toFixed(vib ? 2 : 1)} ${unit}`, 6, 5)
@@ -129,7 +129,7 @@ export function Scope({ channel, className }: Props) {
     const ms = (n * ADC_DT_MS).toFixed(0)
     ctx.fillText(`${ms} ms · ${(n / 1).toFixed(0)} smp`, w - 6, 5)
     ctx.textBaseline = 'bottom'
-    ctx.fillStyle = trig ? rgba(C.go, 0.9) : 'rgba(169,178,183,0.6)'
+    ctx.fillStyle = trig ? paint(C.go, 0.9) : paint(C.steel2, 0.6)
     ctx.fillText(trig ? (vib ? 'TRIG ● tacho 1/rev' : 'TRIG ● zero-cross ↑') : 'TRIG ○ free-run', w - 6, h - 4)
   }, 60)
 

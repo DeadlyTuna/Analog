@@ -88,7 +88,7 @@ export function FaultDeck({ className }: { className?: string }) {
                 <span className="relative h-[3px] w-full overflow-hidden rounded-full bg-ink-600">
                   <span
                     className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-300"
-                    style={{ width: `${r.current * 100}%`, background: `color-mix(in oklab, #ffb21e, #ff4338 ${Math.round(r.current * 100)}%)` }}
+                    style={{ width: `${r.current * 100}%`, background: `color-mix(in oklab, var(--warning), var(--critical) ${Math.round(r.current * 100)}%)` }}
                   />
                   {Math.abs(r.target - r.current) > 0.01 && <span className="absolute inset-y-0 w-px bg-bone" style={{ left: `${r.target * 100}%` }} />}
                 </span>
@@ -110,7 +110,7 @@ export function FaultDeck({ className }: { className?: string }) {
               step={1}
               value={Math.round(selRow.target * 100)}
               className="fader"
-              style={{ '--p': `${selRow.target * 100}%`, '--fc': '#ffb21e' } as React.CSSProperties}
+              style={{ '--p': `${selRow.target * 100}%`, '--fc': 'var(--warning)' } as React.CSSProperties}
               onPointerDown={() => (dragFrom.current = selRow.target)}
               onKeyDown={() => (dragFrom.current = selRow.target)}
               onChange={(e) => store.setFault(sel, Number(e.target.value) / 100, gradualSec, true)}

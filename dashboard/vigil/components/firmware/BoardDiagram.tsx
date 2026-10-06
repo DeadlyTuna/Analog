@@ -1,7 +1,7 @@
 'use client'
 
 import { useSnap } from '@vigil/components/sim/SimProvider'
-import { C } from '@vigil/lib/theme'
+import { C, TASK_COLOR, rgba } from '@vigil/lib/theme'
 import { MCU } from '@vigil/lib/sim/config'
 import { fmt } from '@vigil/lib/utils'
 
@@ -26,7 +26,7 @@ function Block({ x, y, w, h, title, sub, hot, color = C.bone }: { x: number; y: 
   return (
     <g>
       {hot && <rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} rx="9" fill={color} opacity="0.2" filter="url(#bd-glow)" />}
-      <rect x={x} y={y} width={w} height={h} rx="7" fill={hot ? `${color}18` : '#14181a'} stroke={hot ? color : C.ink500} strokeWidth={hot ? 1.4 : 1} style={{ transition: 'all 200ms' }} />
+      <rect x={x} y={y} width={w} height={h} rx="7" fill={hot ? rgba(color, 0.09) : C.bg} stroke={hot ? color : C.ink500} strokeWidth={hot ? 1.4 : 1} style={{ transition: 'all 200ms' }} />
       <text x={x + w / 2} y={y + (sub ? h / 2 - 3 : h / 2 + 4)} textAnchor="middle" className="diagram-text" fontSize="10.5" fontWeight="600" fill={hot ? color : C.steel2}>
         {title}
       </text>
@@ -76,7 +76,7 @@ export function BoardDiagram() {
           const path = `M250 ${s.y + 26} H300 V${ty} H430`
           return (
             <g key={s.name}>
-              <rect x="40" y={s.y} width="210" height="52" rx="8" fill="#14181a" stroke={s.c} strokeOpacity="0.55" />
+              <rect x="40" y={s.y} width="210" height="52" rx="8" fill={C.bg} stroke={s.c} strokeOpacity="0.55" />
               <rect x="40" y={s.y} width="6" height="52" rx="3" fill={s.c} />
               <text x="58" y={s.y + 21} className="diagram-text" fontSize="10.5" fontWeight="600" fill={s.c}>
                 {s.name}
@@ -84,13 +84,13 @@ export function BoardDiagram() {
               <text x="58" y={s.y + 38} className="diagram-text" fontSize="9" fill={C.steel3}>
                 {s.pin}
               </text>
-              <text x="238" y={s.y + 33} textAnchor="end" fontFamily="var(--font-mono)" fontSize="15" fill={C.bone} style={{ fontStretch: '80%' }}>
+              <text x="238" y={s.y + 33} textAnchor="end" fontFamily="var(--font-geist-mono)" fontSize="15" fill={C.bone} style={{ fontStretch: '80%' }}>
                 {i === 3 ? `${raw[i]} rpm` : raw[i]}
               </text>
               <path d={path} fill="none" stroke={C.ink600} strokeWidth="2" />
-              {running && <path d={path} fill="none" stroke={s.c} strokeWidth="2" strokeDasharray="4 8" strokeOpacity="0.85" style={{ animation: 'flow 0.6s linear infinite' }} />}
+              {running && <path d={path} fill="none" stroke={s.c} strokeWidth="2" strokeDasharray="4 8" strokeOpacity="0.85" style={{ animation: 'ind-flow 0.6s linear infinite' }} />}
               {running && (
-                <circle r="3" fill={s.c}>
+                <circle className="packet" r="3" fill={s.c}>
                   <animateMotion dur={`${1.4 + i * 0.1}s`} repeatCount="indefinite" path={path} />
                 </circle>
               )}
@@ -100,7 +100,7 @@ export function BoardDiagram() {
 
         {/* ---- MCU package ---- */}
         <g>
-          <rect x="430" y="70" width="340" height="420" rx="16" fill="#101315" stroke={C.ink500} strokeWidth="1.5" />
+          <rect x="430" y="70" width="340" height="420" rx="16" fill={C.ink700} stroke={C.ink500} strokeWidth="1.5" />
           {Array.from({ length: 14 }, (_, i) => (
             <g key={i} stroke={C.ink500} strokeWidth="2">
               <line x1={450 + i * 22} y1="62" x2={450 + i * 22} y2="70" />
@@ -126,7 +126,7 @@ export function BoardDiagram() {
           <Block x={452} y={326} w={92} h={66} title="GPIO" sub="5 outputs" hot={gpio.ledG || gpio.ledY || gpio.ledR} color={C.go} />
           <Block x={556} y={326} w={92} h={66} title="USART2/1" sub="115200 8N1" hot={recent('USART2_TC', 200)} color={C.caution} />
           <Block x={660} y={326} w={88} h={66} title="IWDG" sub={`${fmt(wdg * 2, 1)} s left`} hot={wdg < 0.45} color={C.stop} />
-          <rect x="452" y="408" width="296" height="62" rx="7" fill="#14181a" stroke={C.ink600} />
+          <rect x="452" y="408" width="296" height="62" rx="7" fill={C.bg} stroke={C.ink600} />
           <text x="600" y="432" textAnchor="middle" className="diagram-text" fontSize="9.5" fill={C.steel3}>
             TASKS  ACQ → DSP → FDT  ·  HLTH  ·  COMM
           </text>
@@ -135,8 +135,8 @@ export function BoardDiagram() {
               .filter((t) => t.id !== 'STRESS')
               .map((t, i) => (
                 <g key={t.id}>
-                  <rect x={468 + i * 56} y="442" width="48" height="16" rx="3" fill={t.state === 'RUNNING' ? t.color : '#1b2023'} stroke={t.color} strokeOpacity="0.6" />
-                  <text x={492 + i * 56} y="454" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8.5" fill={t.state === 'RUNNING' ? '#0a0c0d' : t.color}>
+                  <rect x={468 + i * 56} y="442" width="48" height="16" rx="3" fill={t.state === 'RUNNING' ? TASK_COLOR[t.id] : C.ink700} stroke={TASK_COLOR[t.id]} strokeOpacity="0.6" />
+                  <text x={492 + i * 56} y="454" textAnchor="middle" fontFamily="var(--font-geist-mono)" fontSize="8.5" fill={t.state === 'RUNNING' ? C.bg : C.bone}>
                     {t.id}
                   </text>
                 </g>
@@ -152,8 +152,8 @@ export function BoardDiagram() {
           return (
             <g key={o.name}>
               <path d={path} fill="none" stroke={C.ink600} strokeWidth="2" />
-              {on && <path d={path} fill="none" stroke={o.c} strokeWidth="2" strokeDasharray="4 8" style={{ animation: 'flow 0.6s linear infinite' }} />}
-              <rect x="940" y={o.y} width="220" height="52" rx="8" fill={on ? `${o.c}14` : '#14181a'} stroke={on ? o.c : C.ink500} style={{ transition: 'all 150ms' }} />
+              {on && <path d={path} fill="none" stroke={o.c} strokeWidth="2" strokeDasharray="4 8" style={{ animation: 'ind-flow 0.6s linear infinite' }} />}
+              <rect x="940" y={o.y} width="220" height="52" rx="8" fill={on ? rgba(o.c, 0.08) : C.bg} stroke={on ? o.c : C.ink500} style={{ transition: 'all 150ms' }} />
               <text x="958" y={o.y + 21} className="diagram-text" fontSize="10.5" fontWeight="600" fill={on ? o.c : C.steel2}>
                 {o.name}
               </text>
@@ -175,8 +175,8 @@ export function BoardDiagram() {
           return (
             <g key={h.name}>
               <path d={path} stroke={C.ink600} strokeWidth="2" fill="none" />
-              {running && txHot && <path d={path} stroke={h.c} strokeWidth="2" fill="none" strokeDasharray="3 6" style={{ animation: 'flow 0.9s linear infinite' }} />}
-              <rect x={h.x} y="520" width="200" height="34" rx="7" fill="#14181a" stroke={h.c} strokeOpacity="0.55" />
+              {running && txHot && <path d={path} stroke={h.c} strokeWidth="2" fill="none" strokeDasharray="3 6" style={{ animation: 'ind-flow 0.9s linear infinite' }} />}
+              <rect x={h.x} y="520" width="200" height="34" rx="7" fill={C.bg} stroke={h.c} strokeOpacity="0.55" />
               <text x={h.x + 100} y="534" textAnchor="middle" className="diagram-text" fontSize="10" fontWeight="600" fill={h.c}>
                 {h.name}
               </text>

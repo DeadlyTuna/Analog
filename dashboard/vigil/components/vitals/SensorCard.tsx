@@ -3,7 +3,7 @@
 import { useSnap } from '@vigil/components/sim/SimProvider'
 import { Sparkline } from '@vigil/components/scopes/Sparkline'
 import { INDICATORS, RATED, type IndicatorKey } from '@vigil/lib/sim/config'
-import { C, LEVEL_COLOR } from '@vigil/lib/theme'
+import { C, LEVEL_COLOR, rgba } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 type Ch = 'vib' | 'temp' | 'cur' | 'rpm'
@@ -105,7 +105,7 @@ export function SensorCard({ ch }: { ch: Ch }) {
     <section
       className={cn('panel relative overflow-hidden p-3.5 transition-colors', tone)}
       aria-label={`${m.name} channel`}
-      style={level ? { boxShadow: `0 0 0 1px ${LEVEL_COLOR[level]}22, 0 0 28px -8px ${LEVEL_COLOR[level]}55` } : undefined}
+      style={level ? { boxShadow: `0 0 0 1px ${rgba(LEVEL_COLOR[level], 0.13)}, 0 0 28px -8px ${rgba(LEVEL_COLOR[level], 0.33)}` } : undefined}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export function SensorCard({ ch }: { ch: Ch }) {
           <span className="label !text-bone/90">{m.name}</span>
         </div>
         {level > 0 && (
-          <span className="chip !h-5" style={{ color: LEVEL_COLOR[level], borderColor: `${LEVEL_COLOR[level]}77` }}>
+          <span className="chip !h-5" style={{ color: LEVEL_COLOR[level], borderColor: rgba(LEVEL_COLOR[level], 0.47) }}>
             {level === 2 ? 'critical' : 'warning'}
           </span>
         )}

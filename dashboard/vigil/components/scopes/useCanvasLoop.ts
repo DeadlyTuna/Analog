@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { C, paint } from '@vigil/lib/theme'
 
 export type DrawFn = (ctx: CanvasRenderingContext2D, w: number, h: number, now: number) => void
 
@@ -68,7 +69,7 @@ export function graticule(ctx: CanvasRenderingContext2D, w: number, h: number, d
   ctx.lineWidth = 1
   for (let i = 0; i <= divX; i++) {
     const x = Math.round((i / divX) * (w - 1)) + 0.5
-    ctx.strokeStyle = `rgba(235,232,222,${(i === divX / 2 ? 0.12 : 0.05) * alpha})`
+    ctx.strokeStyle = paint(C.bone, (i === divX / 2 ? 0.12 : 0.05) * alpha)
     ctx.beginPath()
     ctx.moveTo(x, 0)
     ctx.lineTo(x, h)
@@ -76,14 +77,14 @@ export function graticule(ctx: CanvasRenderingContext2D, w: number, h: number, d
   }
   for (let j = 0; j <= divY; j++) {
     const y = Math.round((j / divY) * (h - 1)) + 0.5
-    ctx.strokeStyle = `rgba(235,232,222,${(j === divY / 2 ? 0.14 : 0.05) * alpha})`
+    ctx.strokeStyle = paint(C.bone, (j === divY / 2 ? 0.14 : 0.05) * alpha)
     ctx.beginPath()
     ctx.moveTo(0, y)
     ctx.lineTo(w, y)
     ctx.stroke()
   }
   // minor ticks on the centre axes
-  ctx.strokeStyle = `rgba(235,232,222,${0.1 * alpha})`
+  ctx.strokeStyle = paint(C.bone, 0.1 * alpha)
   const cy = Math.round(h / 2) + 0.5
   for (let i = 0; i <= divX * 5; i++) {
     const x = Math.round((i / (divX * 5)) * (w - 1)) + 0.5

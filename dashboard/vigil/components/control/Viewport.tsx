@@ -35,7 +35,7 @@ export function Viewport({ className }: { className?: string }) {
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3.5">
         <div className="flex flex-col items-start gap-1.5">
           <span className="chip !bg-ink-900/80 backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-go" style={{ boxShadow: '0 0 8px #2ee67c', animation: paused ? undefined : 'pulse-dot 1.4s infinite' }} />
+            <span className="h-1.5 w-1.5 rounded-full bg-go" style={{ boxShadow: '0 0 8px #2ee67c', animation: paused ? undefined : 'ind-pulse-dot 1.4s infinite' }} />
             {paused ? 'paused' : 'live'} · digital twin
           </span>
           <span className="chip !bg-ink-900/80 tabular backdrop-blur">T+ {clock(t)}</span>

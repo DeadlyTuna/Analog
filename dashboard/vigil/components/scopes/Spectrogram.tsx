@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { SPEC_BINS } from '@vigil/lib/sim/config'
 import { SPEC_COLS } from '@vigil/lib/sim/firmware'
-import { IRON_LUT, MONO } from '@vigil/lib/theme'
+import { C, IRON_LUT, mono, paint } from '@vigil/lib/theme'
 import { cn } from '@vigil/lib/utils'
 import { useCanvasLoop } from './useCanvasLoop'
 
@@ -56,11 +56,11 @@ export function Spectrogram({ className }: { className?: string }) {
     ctx.drawImage(o.c, 0, 0, w, h)
 
     // frequency ticks
-    ctx.font = `500 9px ${MONO}`
-    ctx.fillStyle = 'rgba(235,232,222,0.8)'
+    ctx.font = `500 9px ${mono()}`
+    ctx.fillStyle = paint(C.bone, 0.8)
     ctx.textAlign = 'left'
     ctx.textBaseline = 'middle'
-    ctx.strokeStyle = 'rgba(235,232,222,0.18)'
+    ctx.strokeStyle = paint(C.bone, 0.18)
     for (const f of [0, 250, 500, 750, 1000, 1250]) {
       const y = h - (f / 1280) * h
       ctx.beginPath()

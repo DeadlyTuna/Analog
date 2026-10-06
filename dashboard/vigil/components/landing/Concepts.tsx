@@ -59,7 +59,7 @@ export function Concepts() {
       {CONCEPTS.map((c, i) => (
         <Reveal key={c.id} delay={(i % 4) * 0.05}>
           <Link
-            href={`/vigil/firmware#${c.section}`}
+            href={`/industry/firmware#${c.section}`}
             className="panel spot group flex h-full flex-col p-4 transition-colors hover:border-ink-400"
             onPointerMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect()

@@ -190,6 +190,13 @@ export function OfflineNotice({ className = "" }: { className?: string }) {
   );
 }
 
+/** Every section of the site, in reading order: [href, label, short label for phones]. */
+export const SECTIONS = [
+  ["/", "Overview"], ["/dashboard", "Dashboard"], ["/lab", "3D Lab"], ["/how", "How it works", "How"],
+  ["/present", "Present"], ["/industry", "Industry"],
+] as const;
+const isActive = (path: string, href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
+
 export function Nav() {
   const path = usePathname();
   const { status, hello } = useTelemetry();
@@ -197,57 +204,81 @@ export function Nav() {
   const nav = useRef<HTMLElement>(null);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
   useLayoutEffect(() => {
+    const el = nav.current!;
     const place = () => {
-      const a = nav.current?.querySelector<HTMLElement>("[aria-current=page]");
+      const a = el.querySelector<HTMLElement>("[aria-current=page]");
       setPill(a ? { left: a.offsetLeft, width: a.offsetWidth } : null);
     };
     place();
+    // phones scroll the link row: keep the active link in view
+    const a = el.querySelector<HTMLElement>("[aria-current=page]");
+    if (a) el.scrollLeft = a.offsetLeft - (el.clientWidth - a.offsetWidth) / 2;
     const ro = new ResizeObserver(place); // web font swap changes link widths
-    ro.observe(nav.current!);
+    ro.observe(el);
     return () => ro.disconnect();
   }, [path]);
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-page/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
+        <Link href="/" aria-label="Motor Fault Detector · overview" className="flex shrink-0 items-center gap-2.5 rounded-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-series">
           <span className="grid size-7 place-items-center rounded-lg bg-ink text-page">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden>
               <path d="M3 12h3l2-5 3 10 3-8 2 3h5" />
             </svg>
           </span>
-          <span className="hidden sm:inline">Motor Fault Detector</span>
+          <span className="hidden lg:inline">Motor Fault Detector</span>
         </Link>
-        <nav ref={nav} className="relative flex gap-1 rounded-lg bg-surface-2 p-1 text-sm">
+        <nav ref={nav} aria-label="Sections"
+          className="relative flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-surface-2 p-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {pill && (
             <span aria-hidden style={pill}
-              className="absolute inset-y-1 rounded-md bg-surface shadow-sm ring-1 ring-line transition-[left,width] duration-300 ease-[cubic-bezier(.2,.8,.2,1)]" />
+              className="absolute inset-y-1 rounded-md bg-surface shadow-sm ring-1 ring-line transition-[left,width] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] motion-reduce:transition-none" />
           )}
-          {[["/", "Dashboard"], ["/lab", "3D Lab"], ["/how", "How it works", "How"]].map(([href, label, short]) => (
-            <Link key={href} href={href} aria-current={path === href ? "page" : undefined}
-              className="relative whitespace-nowrap rounded-md px-2 py-1 text-ink-2 transition-colors hover:text-ink aria-[current=page]:text-ink sm:px-3">
-              {short ? <><span className="sm:hidden">{short}</span><span className="hidden sm:inline">{label}</span></> : label}
+          {SECTIONS.map(([href, label, short]) => (
+            <Link key={href} href={href} aria-current={isActive(path, href) ? "page" : undefined}
+              className="relative shrink-0 whitespace-nowrap rounded-md px-2 py-1 text-ink-2 transition-colors hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-series aria-[current=page]:text-ink sm:px-3">
+              {short ? <><span aria-hidden className="sm:hidden">{short}</span><span className="sr-only sm:not-sr-only">{label}</span></> : label}
             </Link>
           ))}
         </nav>
-        <Link href="/vigil" title="Embedded firmware suite (Vigil)"
-          className="ml-auto flex shrink-0 items-center gap-1.5 rounded-lg border border-line px-2 py-1 text-xs text-ink-2 transition-colors hover:border-ink-2 hover:text-ink sm:px-2.5">
-          <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
-            <rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" />
-          </svg>
-          <span className="hidden md:inline">Firmware twin</span>
-          <span className="sr-only md:hidden">Firmware twin</span>
-        </Link>
-        <span className="flex shrink-0 items-center gap-2 text-xs text-ink-2">
+        <span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-ink-2">
           <span className="relative flex size-2">
             {live && <span className="absolute inset-0 motion-safe:animate-ping rounded-full bg-good opacity-60" />}
             <span className={`relative size-2 rounded-full ${live ? "bg-good" : status === "offline" ? "bg-critical" : "bg-muted"}`} />
           </span>
-          <span className="sr-only sm:not-sr-only">
+          <span className="sr-only md:not-sr-only">
             {live ? `Simulated Arduino · ${hello?.circuit.fs ?? 1000} Hz` : status === "offline" ? "Backend offline" : "Connecting…"}
           </span>
         </span>
       </div>
     </header>
+  );
+}
+
+/** Site footer: every section, credits and where the data comes from. */
+export function Footer() {
+  return (
+    <footer className="mt-auto border-t border-line">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-ink-2 sm:px-6 md:grid-cols-[1fr_auto]">
+        <div className="space-y-1.5">
+          <p className="font-medium text-ink">AI-Based Motor Fault Detection Using Analog Current Sensing</p>
+          <p>Analog Electronics · Semester 3 project</p>
+          <p className="max-w-2xl text-xs leading-relaxed">
+            Data: the main project streams from a Python model of the motor and analog front-end (backend/server.py, 1 kHz, 20 frames/s).
+            The industry extension runs its own simulator in the browser. Industry extension based on Vigil by Sidhant.
+          </p>
+        </div>
+        <nav aria-label="Footer">
+          <ul className="grid grid-cols-2 gap-x-8 gap-y-1.5 sm:grid-cols-3 md:grid-cols-2">
+            {SECTIONS.map(([href, label]) => (
+              <li key={href}>
+                <Link href={href} className="rounded hover:text-ink focus-visible:outline-2 focus-visible:outline-series">{label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </footer>
   );
 }
 

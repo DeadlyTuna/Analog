@@ -139,3 +139,47 @@ body {
   .pulse-ring { animation: none; transform: scale(1.3); opacity: 0.4; }
   .backdrop { transition: none; }
 }
+
+/* ---- industry extension bridge ---- */
+/* Vigil's theme names (/industry) mapped onto this site's tokens, so its utilities follow light and dark. */
+:root {
+  --ch-vib: #2a78d6;
+  --ch-temp: #eb6834;
+  --ch-cur: #4a3aa7;
+  --ch-rpm: var(--ink);
+  --ch-teal: #0e8a74;
+  --ch-pink: #c0437f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ch-vib: #3987e5;
+    --ch-temp: #d95926;
+    --ch-cur: #9085e9;
+    --ch-teal: #2bb39b;
+    --ch-pink: #e070a6;
+  }
+}
+@theme inline {
+  --color-ink-950: var(--page);
+  --color-ink-900: var(--page);
+  --color-ink-850: var(--surface);
+  --color-ink-800: var(--surface);
+  --color-ink-700: var(--surface-2);
+  --color-ink-600: var(--grid);
+  --color-ink-500: var(--axis);
+  --color-ink-400: var(--muted);
+  --color-steel-300: var(--ink-2);
+  --color-steel-200: var(--ink-2);
+  --color-bone: var(--ink);
+  --color-go: var(--good);
+  --color-caution: var(--warning);
+  --color-stop: var(--critical);
+  --color-forecast: var(--series);
+  --color-vib: var(--ch-vib);
+  --color-temp: var(--ch-temp);
+  --color-cur: var(--ch-cur);
+  --color-rpm: var(--ch-rpm);
+  --font-stencil: var(--font-geist-sans);
+  --font-display: var(--font-geist-sans);
+}
+/* ---- end industry bridge ---- */

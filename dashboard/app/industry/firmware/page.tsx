@@ -11,7 +11,7 @@ import { LatencySection } from '@vigil/components/firmware/LatencySection'
 import { MemorySection } from '@vigil/components/firmware/MemorySection'
 import { SchedulerSection } from '@vigil/components/firmware/SchedulerSection'
 
-export const metadata = { title: 'Firmware — Vigil' }
+export const metadata = { title: 'Firmware — Industry extension' }
 
 export default function FirmwarePage() {
   return (

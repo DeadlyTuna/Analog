@@ -2,7 +2,7 @@
 
 import { shallowEqual, useSnap, useStore } from '@vigil/components/sim/SimProvider'
 import type { FsmState } from '@vigil/lib/sim/config'
-import { C, LEVEL_COLOR, STATE_COLOR } from '@vigil/lib/theme'
+import { C, LEVEL_COLOR, STATE_COLOR, rgba } from '@vigil/lib/theme'
 import { cn, fmt } from '@vigil/lib/utils'
 
 /* ---------- state machine diagram ---------- */
@@ -73,7 +73,7 @@ function Fsm() {
           return (
             <g key={n.s}>
               {on && <rect x={n.x - W / 2 - 3} y={Y - 25} width={W + 6} height="56" rx="12" fill={col} opacity="0.4" filter="url(#fsm-glow)" />}
-              <rect x={n.x - W / 2} y={Y - 22} width={W} height="50" rx="10" fill={on ? `${col}22` : '#14181a'} stroke={on ? col : C.ink500} strokeWidth={on ? 1.8 : 1} style={{ transition: 'all 200ms' }} />
+              <rect x={n.x - W / 2} y={Y - 22} width={W} height="50" rx="10" fill={on ? rgba(col, 0.13) : C.bg} stroke={on ? col : C.ink500} strokeWidth={on ? 1.8 : 1} style={{ transition: 'all 200ms' }} />
               <text x={n.x} y={Y + 8} textAnchor="middle" fontFamily="var(--font-display)" fontWeight="700" fontSize="19" fill={on ? col : C.steel2} style={{ letterSpacing: '0.04em' }}>
                 {n.label}
               </text>
@@ -129,7 +129,7 @@ function Limits() {
                     {live ? fmt(i.value, i.def.dp) : '—'} <span className="font-normal text-steel-300">{u}</span>
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <span className="mono rounded px-1.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.1em]" style={{ color: col, background: `${col}14` }}>
+                    <span className="mono rounded px-1.5 py-0.5 text-[9.5px] font-medium uppercase tracking-[0.1em]" style={{ color: col, background: rgba(col, 0.08) }}>
                       {lvl === 2 ? 'crit' : lvl === 1 ? 'warn' : 'ok'}
                     </span>
                   </td>

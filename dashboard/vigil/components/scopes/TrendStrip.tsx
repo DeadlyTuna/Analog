@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { TREND_LEN } from '@vigil/lib/sim/firmware'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, mono, paint, resolve, rgba } from '@vigil/lib/theme'
 import { cn } from '@vigil/lib/utils'
 import { useCanvasLoop } from './useCanvasLoop'
 
@@ -41,7 +41,7 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
     const yOf = (v: number) => padT + ph - ((v - min) / (max - min)) * ph
 
     // grid
-    ctx.strokeStyle = 'rgba(235,232,222,0.05)'
+    ctx.strokeStyle = paint(C.bone, 0.05)
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
       const y = Math.round(padT + (i / 4) * ph) + 0.5
@@ -58,9 +58,9 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
       ctx.stroke()
     }
     // future region
-    ctx.fillStyle = 'rgba(92,157,255,0.045)'
+    ctx.fillStyle = paint(C.forecast, 0.045)
     ctx.fillRect(pw, 0, futureW, h)
-    ctx.strokeStyle = 'rgba(92,157,255,0.35)'
+    ctx.strokeStyle = paint(C.forecast, 0.35)
     ctx.setLineDash([2, 3])
     ctx.beginPath()
     ctx.moveTo(pw + 0.5, 0)
@@ -72,15 +72,15 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
     const limit = (v: number | undefined, col: string, label: string) => {
       if (v == null || v < min || v > max) return
       const y = yOf(v)
-      ctx.strokeStyle = rgba(col, 0.55)
+      ctx.strokeStyle = paint(col, 0.55)
       ctx.setLineDash([4, 4])
       ctx.beginPath()
       ctx.moveTo(0, y + 0.5)
       ctx.lineTo(w, y + 0.5)
       ctx.stroke()
       ctx.setLineDash([])
-      ctx.font = `500 8.5px ${MONO}`
-      ctx.fillStyle = rgba(col, 0.9)
+      ctx.font = `500 8.5px ${mono()}`
+      ctx.fillStyle = paint(col, 0.9)
       ctx.textAlign = 'left'
       ctx.textBaseline = 'bottom'
       ctx.fillText(label, 4, y - 2)
@@ -93,8 +93,8 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
 
     // fill
     const g = ctx.createLinearGradient(0, padT, 0, padT + ph)
-    g.addColorStop(0, rgba(color, 0.28))
-    g.addColorStop(1, rgba(color, 0))
+    g.addColorStop(0, paint(color, 0.28))
+    g.addColorStop(1, paint(color, 0))
     ctx.beginPath()
     ctx.moveTo(xi(0), padT + ph)
     for (let i = 0; i < n; i++) ctx.lineTo(xi(i), Math.max(padT - 2, Math.min(h, yOf(b[i]))))
@@ -113,12 +113,12 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
       }
     }
     trace()
-    ctx.strokeStyle = rgba(color, 0.25)
+    ctx.strokeStyle = paint(color, 0.25)
     ctx.lineWidth = 4
     ctx.lineJoin = 'round'
     ctx.stroke()
     trace()
-    ctx.strokeStyle = color
+    ctx.strokeStyle = resolve(color)
     ctx.lineWidth = 1.5
     ctx.stroke()
 
@@ -148,7 +148,7 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
       const smoothLast = sy / m + slope * ((m - 1) / 20)
       const yEnd = smoothLast + slope * horizon
       ctx.setLineDash([5, 4])
-      ctx.strokeStyle = C.forecast
+      ctx.strokeStyle = resolve(C.forecast)
       ctx.lineWidth = 1.5
       ctx.beginPath()
       ctx.moveTo(pw, Math.max(padT, Math.min(padT + ph, yOf(last))))
@@ -159,21 +159,21 @@ export function TrendStrip({ series, color, min, max, warn, crit, invert, unit, 
 
     // live dot
     const ly = Math.max(padT, Math.min(padT + ph, yOf(last)))
-    ctx.fillStyle = color
+    ctx.fillStyle = resolve(color)
     ctx.beginPath()
     ctx.arc(pw - 1, ly, 3, 0, Math.PI * 2)
     ctx.fill()
-    ctx.strokeStyle = rgba(color, 0.4)
+    ctx.strokeStyle = paint(color, 0.4)
     ctx.beginPath()
     ctx.arc(pw - 1, ly, 6, 0, Math.PI * 2)
     ctx.stroke()
-    ctx.font = `500 9px ${MONO}`
+    ctx.font = `500 9px ${mono()}`
     ctx.textAlign = 'right'
     ctx.textBaseline = 'top'
-    ctx.fillStyle = rgba(C.bone, 0.9)
+    ctx.fillStyle = paint(C.bone, 0.9)
     ctx.fillText(`${last.toFixed(dp)} ${unit}`, w - 5, 4)
     if (showForecast) {
-      ctx.fillStyle = C.forecast
+      ctx.fillStyle = resolve(C.forecast)
       ctx.textBaseline = 'bottom'
       ctx.fillText('forecast', w - 5, h - 3)
     }

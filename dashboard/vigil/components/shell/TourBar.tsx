@@ -20,23 +20,23 @@ export function TourBar() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 30 }}
           transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
-          className="fixed inset-x-3 bottom-3 z-[70] mx-auto max-w-[860px] sm:bottom-5"
+          className="fixed inset-x-3 bottom-3 z-30 mx-auto max-w-[860px] sm:bottom-5"
           aria-label="Guided demo"
           role="status"
         >
-          <div className="overflow-hidden rounded-2xl border border-ink-400/60 bg-ink-900/90 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-            <div className="h-[3px] bg-ink-600">
-              <div className="h-full bg-[var(--state)] transition-[width] duration-300" style={{ width: `${((tour.index + tour.progress) / tour.total) * 100}%` }} />
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface/95 shadow-lg backdrop-blur-md">
+            <div className="h-1 bg-surface-2">
+              <div className="h-full bg-series transition-[width] duration-300" style={{ width: `${((tour.index + tour.progress) / tour.total) * 100}%` }} />
             </div>
             <div className="flex items-start gap-4 p-4 sm:p-5">
               <div className="min-w-0 flex-1">
-                <p className="label !text-bone/80">
+                <p className="text-xs font-medium text-muted">
                   Guided demo · step {tour.index + 1} of {tour.total}
                 </p>
                 <AnimatePresence mode="wait">
                   <motion.div key={tour.index} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
-                    <h2 className="display mt-1.5 text-[28px] text-bone sm:text-[34px]">{tour.title}</h2>
-                    <p className="mt-1.5 text-[15.5px] leading-snug text-steel-200 text-pretty">{tour.text}</p>
+                    <h2 className="mt-1 text-lg font-semibold tracking-tight text-ink sm:text-xl">{tour.title}</h2>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-2 text-pretty">{tour.text}</p>
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -65,7 +65,7 @@ export function GuidedDemoButton({ className, label = 'Run the guided demo' }: {
           store.stopTour()
           return
         }
-        if (window.location.pathname !== '/vigil/control-room') router.push('/vigil/control-room')
+        if (window.location.pathname !== '/industry/control-room') router.push('/industry/control-room')
         store.startTour()
       }}
     >

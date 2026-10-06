@@ -3,18 +3,17 @@
 import { useCanvasLoop } from '@vigil/components/scopes/useCanvasLoop'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { ISR_LANE } from '@vigil/lib/sim/rtos'
-import { STRESS_SPEC, TASK_SPECS } from '@vigil/lib/sim/config'
-import { C, MONO, rgba } from '@vigil/lib/theme'
+import { C, TASK_COLOR, mono, paint, resolve, rgba } from '@vigil/lib/theme'
 
 // scheduler lane index → display
 const LANES = [
   { lane: ISR_LANE, label: 'ISR', sub: '', color: C.forecast },
-  { lane: 0, label: 'ACQ', sub: 'P6', color: TASK_SPECS[0].color },
-  { lane: 1, label: 'DSP', sub: 'P5', color: TASK_SPECS[1].color },
-  { lane: 2, label: 'FDT', sub: 'P4', color: TASK_SPECS[2].color },
-  { lane: 5, label: 'STRESS', sub: 'P3', color: STRESS_SPEC.color },
-  { lane: 3, label: 'HLTH', sub: 'P2', color: TASK_SPECS[3].color },
-  { lane: 4, label: 'COMM', sub: 'P1', color: TASK_SPECS[4].color },
+  { lane: 0, label: 'ACQ', sub: 'P6', color: TASK_COLOR.ACQ },
+  { lane: 1, label: 'DSP', sub: 'P5', color: TASK_COLOR.DSP },
+  { lane: 2, label: 'FDT', sub: 'P4', color: TASK_COLOR.FDT },
+  { lane: 5, label: 'STRESS', sub: 'P3', color: TASK_COLOR.STRESS },
+  { lane: 3, label: 'HLTH', sub: 'P2', color: TASK_COLOR.HLTH },
+  { lane: 4, label: 'COMM', sub: 'P1', color: TASK_COLOR.COMM },
 ]
 
 /** Scheduler trace in the style of a logic analyser / SystemView: one lane per task, newest at the right. */
@@ -34,39 +33,39 @@ export function Gantt({ windowMs }: { windowMs: number }) {
     ctx.clearRect(0, 0, w, h)
 
     // lane backgrounds + labels
-    ctx.font = `600 10px ${MONO}`
+    ctx.font = `600 10px ${mono()}`
     ctx.textBaseline = 'middle'
     lanes.forEach((l, i) => {
       const y = i * laneH
       if (i % 2 === 0) {
-        ctx.fillStyle = 'rgba(235,232,222,0.025)'
+        ctx.fillStyle = paint(C.bone, 0.025)
         ctx.fillRect(0, y, w, laneH)
       }
-      ctx.fillStyle = l.color
+      ctx.fillStyle = resolve(l.color)
       ctx.textAlign = 'left'
       ctx.fillText(l.label, 8, y + laneH / 2 - 0.5)
       if (l.sub) {
-        ctx.fillStyle = 'rgba(135,147,154,0.8)'
-        ctx.font = `500 8.5px ${MONO}`
+        ctx.fillStyle = paint(C.steel3, 0.8)
+        ctx.font = `500 8.5px ${mono()}`
         ctx.fillText(l.sub, 8 + ctx.measureText(l.label).width + 5, y + laneH / 2 + 0.5)
-        ctx.font = `600 10px ${MONO}`
+        ctx.font = `600 10px ${mono()}`
       }
     })
 
     // time grid
     const step = windowMs <= 120 ? 10 : windowMs <= 300 ? 25 : windowMs <= 600 ? 50 : 100
     const first = Math.ceil(t0 / step) * step
-    ctx.font = `500 8.5px ${MONO}`
+    ctx.font = `500 8.5px ${mono()}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
     for (let t = first; t <= t1; t += step) {
       const xx = Math.round(x(t)) + 0.5
-      ctx.strokeStyle = t % (step * 5) === 0 ? 'rgba(235,232,222,0.12)' : 'rgba(235,232,222,0.05)'
+      ctx.strokeStyle = paint(C.bone, t % (step * 5) === 0 ? 0.12 : 0.05)
       ctx.beginPath()
       ctx.moveTo(xx, 0)
       ctx.lineTo(xx, h - axisH)
       ctx.stroke()
-      ctx.fillStyle = 'rgba(135,147,154,0.85)'
+      ctx.fillStyle = paint(C.steel3, 0.85)
       ctx.fillText(`${Math.round((t - t1) / 5) * 5}`, xx, h - axisH + 4)
     }
     ctx.textAlign = 'right'
@@ -74,7 +73,7 @@ export function Gantt({ windowMs }: { windowMs: number }) {
 
     // 1 kHz tick marks when zoomed in
     if (windowMs <= 250) {
-      ctx.strokeStyle = 'rgba(92,157,255,0.22)'
+      ctx.strokeStyle = paint(C.forecast, 0.22)
       const t00 = Math.ceil(t0)
       for (let t = t00; t <= t1; t++) {
         const xx = Math.round(x(t)) + 0.5
@@ -96,14 +95,14 @@ export function Gantt({ windowMs }: { windowMs: number }) {
       const y = i * laneH + 3
       const hh = laneH - 6
       const col = lanes[i].color
-      ctx.fillStyle = rgba(col, lane === ISR_LANE ? 0.95 : 0.88)
+      ctx.fillStyle = paint(col, lane === ISR_LANE ? 0.95 : 0.88)
       ctx.fillRect(xa, y, wd, hh)
       ctx.fillStyle = 'rgba(255,255,255,0.28)'
       ctx.fillRect(xa, y, wd, 1.5)
     })
 
     // now marker
-    ctx.strokeStyle = C.bone
+    ctx.strokeStyle = resolve(C.bone)
     ctx.lineWidth = 1.2
     const nx = labelW + pw
     ctx.beginPath()

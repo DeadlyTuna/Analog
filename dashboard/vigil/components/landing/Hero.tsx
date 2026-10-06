@@ -49,7 +49,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="ml-auto"
         >
-          <Link href="/vigil/present" className="btn btn-ghost !h-10 !px-5 !text-[14px]">
+          <Link href="/present" className="btn btn-ghost !h-10 !px-5 !text-[14px]">
             View presentation
           </Link>
         </motion.div>
@@ -85,10 +85,10 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 1, ease: EASE }}
             className="mt-7 flex flex-wrap items-center gap-3"
           >
-            <Link href="/vigil/control-room" className="btn btn-primary !h-12 !px-6 !text-[16px]">
+            <Link href="/industry/control-room" className="btn btn-primary !h-12 !px-6 !text-[16px]">
               Open the control room <ArrowRight size={18} aria-hidden />
             </Link>
-            <Link href="/vigil/firmware" className="btn !h-12 !px-5 !text-[16px]">
+            <Link href="/industry/firmware" className="btn !h-12 !px-5 !text-[16px]">
               Read the firmware
             </Link>
             <GuidedDemoButton className="btn-ghost !h-12 !px-5 !text-[16px]" label="Watch the guided demo" />

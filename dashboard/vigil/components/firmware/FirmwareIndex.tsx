@@ -34,7 +34,7 @@ export function FirmwareIndex() {
   }, [])
 
   return (
-    <nav aria-label="Firmware sections" className="sticky top-24">
+    <nav aria-label="Firmware sections" className="sticky top-36">
       <p className="label mb-3">On this page</p>
       <ol className="space-y-0.5 border-l border-ink-600">
         {SECTIONS.map((s) => {

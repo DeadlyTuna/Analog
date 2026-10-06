@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useStore } from '@vigil/components/sim/SimProvider'
 import { TREND_LEN } from '@vigil/lib/sim/firmware'
-import { rgba } from '@vigil/lib/theme'
+import { paint, resolve, rgba } from '@vigil/lib/theme'
 import { cn } from '@vigil/lib/utils'
 import { useCanvasLoop } from './useCanvasLoop'
 
@@ -46,8 +46,8 @@ export function Sparkline({ series, color, seconds = 30, className }: Props) {
     const y = (v: number) => h - 2 - ((v - a) / (z - a || 1)) * (h - 4)
 
     const g = ctx.createLinearGradient(0, 0, 0, h)
-    g.addColorStop(0, rgba(color, 0.25))
-    g.addColorStop(1, rgba(color, 0))
+    g.addColorStop(0, paint(color, 0.25))
+    g.addColorStop(1, paint(color, 0))
     ctx.beginPath()
     ctx.moveTo(x(0), h)
     for (let i = 0; i < n; i++) ctx.lineTo(x(i), y(b[i]))
@@ -61,13 +61,13 @@ export function Sparkline({ series, color, seconds = 30, className }: Props) {
       if (i === 0) ctx.moveTo(x(i), y(b[i]))
       else ctx.lineTo(x(i), y(b[i]))
     }
-    ctx.strokeStyle = color
+    ctx.strokeStyle = resolve(color)
     ctx.lineWidth = 1.4
     ctx.lineJoin = 'round'
     ctx.stroke()
     ctx.beginPath()
     ctx.arc(x(n - 1) - 1, y(b[n - 1]), 2.2, 0, Math.PI * 2)
-    ctx.fillStyle = color
+    ctx.fillStyle = resolve(color)
     ctx.fill()
   }, 20)
 
