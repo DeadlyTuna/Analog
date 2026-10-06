@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --line: rgba(11, 11, 11, 0.1);
+  --series: #2a78d6;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #252523;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --line: rgba(255, 255, 255, 0.1);
+    --series: #3987e5;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-series: var(--series);
+  --color-good: var(--good);
+  --color-warning: var(--warning);
+  --color-critical: var(--critical);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+}
+
+/* new content eases in */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+}
+.rise { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* data flowing between pipeline stages: .flow is vertical, .flow-r turns horizontal on desktop */
+@keyframes flow-y { to { background-position: 0 10px; } }
+@keyframes flow-x { to { background-position: 10px 0; } }
+.flow, .flow-r {
+  background-image: radial-gradient(circle, var(--series) 1.5px, transparent 2px);
+  background-size: 4px 10px;
+  animation: flow-y 0.5s linear infinite;
+}
+@media (min-width: 1024px) {
+  .flow-r { background-size: 10px 4px; animation-name: flow-x; }
+}
+
+/* fixed page backdrop: dot grid fading down + a glow tinted by the AI verdict (--glow, set inline) */
+@property --glow {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(70rem 30rem at 50% -8rem, color-mix(in srgb, var(--glow) 16%, transparent), transparent 70%);
+  transition: --glow 1.5s ease;
+}
+.backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--axis) 1px, transparent 1.5px) 0 0 / 24px 24px;
+  mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  opacity: 0.6;
+}
+
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  background: var(--surface-2);
+  color: var(--ink);
+  font: 500 11px/1 var(--font-geist-mono), monospace;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateX(16px); }
+}
+.toast-in { animation: toast-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.toast-out { animation: toast-out 0.3s ease-in forwards; }
+
+/* fault: a ring keeps radiating from the status icon; any verdict change pops the icon */
+@keyframes pulse-ring {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+.pulse-ring {
+  border: 2px solid currentColor;
+  animation: pulse-ring 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+@keyframes pop {
+  from { transform: scale(0.7); }
+  60% { transform: scale(1.1); }
+}
+.pop { animation: pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .flow, .flow-r, .toast-in, .pop { animation: none; }
+  .toast-out { animation-duration: 0.01s; }
+  .pulse-ring { animation: none; transform: scale(1.3); opacity: 0.4; }
+  .backdrop { transition: none; }
+}

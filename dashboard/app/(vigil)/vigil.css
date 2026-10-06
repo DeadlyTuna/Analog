@@ -1,0 +1,457 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   VIGIL — design tokens
+   Warm graphite surfaces, bone-coloured type, and the four colours of an
+   andon stack light (green · amber · red · blue). The page is "lit" by the
+   machine's state through the animatable --state colour.
+   ===================================================================== */
+
+@theme {
+  --color-ink-950: #0a0c0d;
+  --color-ink-900: #0f1112;
+  --color-ink-850: #131617;
+  --color-ink-800: #171a1c;
+  --color-ink-700: #1e2225;
+  --color-ink-600: #292e32;
+  --color-ink-500: #394045;
+  --color-ink-400: #556067;
+
+  --color-steel-300: #87939a;
+  --color-steel-200: #a9b2b7;
+  --color-bone: #ebe8de;
+
+  /* andon stack light */
+  --color-go: #2ee67c;
+  --color-caution: #ffb21e;
+  --color-stop: #ff4338;
+  --color-forecast: #5c9dff;
+
+  /* measurement channels (oscilloscope convention: one colour per channel) */
+  --color-vib: #44d9ff;
+  --color-temp: #ff8a4c;
+  --color-cur: #b79cff;
+  --color-rpm: #ebe8de;
+
+  --font-stencil: "Big Shoulders Stencil Display Variable", "Big Shoulders Display Variable", Impact, sans-serif;
+  --font-display: "Big Shoulders Display Variable", Impact, sans-serif;
+  --font-sans: "Sofia Sans Semi Condensed Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Martian Mono Variable", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+/* state colour — registered so it can transition smoothly between machine states */
+@property --state {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #566067;
+}
+
+@layer base {
+  :root {
+    --state: #566067;
+    --bg: var(--color-ink-900);
+    --panel: var(--color-ink-800);
+    --panel-hi: var(--color-ink-700);
+    --line: var(--color-ink-600);
+    --line-hi: var(--color-ink-500);
+    --fg: var(--color-bone);
+    --fg-2: var(--color-steel-200);
+    --fg-3: var(--color-steel-300);
+    color-scheme: dark;
+  }
+
+  html {
+    transition: --state 900ms ease;
+    background: var(--bg);
+  }
+  html[data-state="healthy"] { --state: #2ee67c; }
+  html[data-state="warning"] { --state: #ffb21e; }
+  html[data-state="critical"],
+  html[data-state="tripped"] { --state: #ff4338; }
+  html[data-state="startup"] { --state: #5c9dff; }
+  html[data-state="off"] { --state: #566067; }
+
+  /* =====================================================================
+     Base
+     ===================================================================== */
+
+  * { scrollbar-width: thin; scrollbar-color: var(--color-ink-500) transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  ::selection { background: color-mix(in oklab, var(--state) 45%, transparent); color: #fff; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-forecast);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button { font: inherit; color: inherit; }
+
+}
+
+/* Component classes live in the components layer so Tailwind utilities (text-*, h-*, !…) always win over them. */
+@layer components {
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* type roles */
+  .stencil {
+    font-family: var(--font-stencil);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+    line-height: 0.86;
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    font-stretch: 85%;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    line-height: 1.2;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-stretch: 85%;
+    font-variant-numeric: tabular-nums;
+  }
+  .readout {
+    font-family: var(--font-mono);
+    font-stretch: 75%;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* =====================================================================
+     Backdrop + ambient light
+     ===================================================================== */
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(90% 60% at 50% -10%, color-mix(in oklab, var(--state) 9%, transparent), transparent 62%),
+      var(--bg);
+  }
+  .backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(235, 232, 222, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(235, 232, 222, 0.035) 1px, transparent 1px),
+      linear-gradient(to right, rgba(235, 232, 222, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(235, 232, 222, 0.02) 1px, transparent 1px);
+    background-size: 192px 192px, 192px 192px, 48px 48px, 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 25%, #000 25%, transparent 78%);
+  }
+  .backdrop::after {
+    /* film grain */
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background:
+      radial-gradient(70% 55% at 0% 100%, color-mix(in oklab, var(--state) 16%, transparent), transparent 70%),
+      radial-gradient(70% 55% at 100% 100%, color-mix(in oklab, var(--state) 16%, transparent), transparent 70%);
+    box-shadow: inset 0 0 140px 10px color-mix(in oklab, var(--state) 16%, transparent);
+  }
+  html[data-state="critical"] .ambient,
+  html[data-state="tripped"] .ambient { animation: crit-breathe 0.8s ease-in-out infinite alternate; }
+  html[data-state="warning"] .ambient { animation: warn-breathe 2.4s ease-in-out infinite alternate; }
+  html[data-state="off"] .ambient { opacity: 0.35; }
+
+
+  /* =====================================================================
+     Surfaces
+     ===================================================================== */
+
+  .panel {
+    position: relative;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 40%),
+      var(--panel);
+    border: 1px solid color-mix(in oklab, var(--state) 8%, var(--line));
+    border-radius: 12px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 40px -24px rgba(0, 0, 0, 0.9);
+    transition: border-color 600ms ease;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px 10px;
+    border-bottom: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+  }
+  .panel-body { padding: 14px; }
+
+  /* black glass for scopes and canvases */
+  .screen {
+    position: relative;
+    background: #060707;
+    border-radius: 8px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+      inset 0 10px 30px rgba(0, 0, 0, 0.75);
+    overflow: hidden;
+  }
+  .screen::after {
+    /* faint glass reflection */
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.035), transparent 28%);
+  }
+
+  /* hazard-tape strip, used on the fault injection controls */
+  .hazard {
+    background: repeating-linear-gradient(-45deg, #ffb21e 0 7px, #14161a 7px 14px);
+  }
+
+  /* spotlight that follows the pointer (set --mx / --my from JS) */
+  .spot {
+    position: relative;
+    isolation: isolate;
+  }
+  .spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 250ms ease;
+    background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), rgba(235, 232, 222, 0.07), transparent 60%);
+  }
+  .spot:hover::before { opacity: 1; }
+
+  /* =====================================================================
+     Controls
+     ===================================================================== */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line-hi);
+    background: var(--panel-hi);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 120ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+  .btn:hover { border-color: color-mix(in oklab, var(--fg) 55%, transparent); background: var(--color-ink-600); }
+  .btn:active { transform: translateY(1px); }
+  .btn[disabled] { opacity: 0.4; pointer-events: none; }
+  .btn-primary { background: var(--fg); color: var(--color-ink-950); border-color: var(--fg); }
+  .btn-primary:hover { background: #fff; border-color: #fff; }
+  .btn-ghost { background: transparent; }
+  .btn-sm { height: 30px; padding: 0 10px; font-size: 13px; border-radius: 7px; }
+  .btn-icon { width: 36px; padding: 0; }
+  .btn-icon.btn-sm { width: 30px; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line-hi);
+    background: rgba(255, 255, 255, 0.03);
+    font-family: var(--font-mono);
+    font-stretch: 85%;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    white-space: nowrap;
+  }
+
+  /* horizontal fader (range input) */
+  .fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 24px;
+    background: transparent;
+    cursor: pointer;
+    --p: 50%;
+    --fc: var(--fg);
+  }
+  .fader::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--fc) var(--p), var(--color-ink-500) var(--p));
+  }
+  .fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 20px;
+    margin-top: -8px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #f4f1e8, #bdb9ac);
+    border: 1px solid #000;
+    box-shadow: 0 0 0 3px rgba(235, 232, 222, 0.08), 0 2px 6px rgba(0, 0, 0, 0.6);
+  }
+  .fader::-moz-range-track { height: 4px; border-radius: 2px; background: var(--color-ink-500); }
+  .fader::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--fc); }
+  .fader::-moz-range-thumb {
+    width: 10px;
+    height: 20px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #f4f1e8, #bdb9ac);
+    border: 1px solid #000;
+  }
+
+  /* =====================================================================
+     Lamps (stack-light segments, GPIO LEDs)
+     ===================================================================== */
+
+  .lamp {
+    --c: var(--color-steel-300);
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--c) 22%, #0c0d0e);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    transition: background 120ms ease, box-shadow 120ms ease;
+  }
+  .lamp.on {
+    background: var(--c);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--c) 60%, transparent), 0 0 10px 1px var(--c), 0 0 22px 3px color-mix(in oklab, var(--c) 45%, transparent);
+  }
+  .lamp-g { --c: var(--color-go); }
+  .lamp-y { --c: var(--color-caution); }
+  .lamp-r { --c: var(--color-stop); }
+  .lamp-b { --c: var(--color-forecast); }
+
+  /* =====================================================================
+     Motion
+     ===================================================================== */
+
+
+  .rise { animation: rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .blink { animation: blink 1s steps(1) infinite; }
+
+
+  /* =====================================================================
+     Misc helpers
+     ===================================================================== */
+
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+  /* tooltip-ish title used by SVG diagrams */
+  .diagram-text { font-family: var(--font-mono); font-stretch: 85%; letter-spacing: 0.08em; }
+
+}
+
+/* =====================================================================
+   Motion
+   ===================================================================== */
+@keyframes crit-breathe { from { opacity: 0.55; } to { opacity: 1.35; } }
+@keyframes warn-breathe { from { opacity: 0.7; } to { opacity: 1.1; } }
+@keyframes flow { to { stroke-dashoffset: -24; } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes scanline { from { transform: translateY(-10%); } to { transform: translateY(110%); } }
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =====================================================================
+   Boot splash (first visit per session)
+   ===================================================================== */
+
+html[data-boot="done"] .boot { display: none; }
+
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(70% 60% at 50% 45%, #15191b, #0a0c0d 70%);
+  animation: boot-out 0.55s ease 2.35s forwards;
+}
+.boot.boot-skip { animation: boot-out 0.2s ease forwards; }
+.boot-inner { width: min(440px, 86vw); }
+.boot-lamps { display: flex; gap: 14px; margin-bottom: 18px; }
+.boot-lamps i {
+  width: 16px; height: 16px; border-radius: 999px; background: #1d2225;
+  animation: boot-lamp 0.5s ease var(--d) forwards;
+}
+.boot-title { font-size: 92px; line-height: 0.8; color: #ebe8de; letter-spacing: 0.01em; }
+.boot-log { margin-top: 22px; font-size: 11.5px; line-height: 1.85; color: #87939a; list-style: none; padding: 0; }
+.boot-log li { opacity: 0; animation: boot-line 0.01s linear forwards; }
+.boot-log li span { color: #2ee67c; margin-right: 6px; }
+.boot-log .boot-ready { color: #ebe8de; margin-top: 6px; }
+.boot-bar { margin-top: 18px; height: 2px; background: #1d2225; border-radius: 2px; overflow: hidden; }
+.boot-bar span { display: block; height: 100%; width: 100%; background: #ebe8de; transform-origin: left; animation: boot-fill 2.2s cubic-bezier(.3,.7,.2,1) forwards; transform: scaleX(0); }
+.boot-skip-hint { margin-top: 14px; opacity: 0.55; }
+
+@keyframes boot-out { to { opacity: 0; visibility: hidden; } }
+@keyframes boot-line { to { opacity: 1; } }
+@keyframes boot-fill { to { transform: scaleX(1); } }
+@keyframes boot-lamp {
+  0% { background: #1d2225; box-shadow: none; }
+  40% { background: var(--c); box-shadow: 0 0 14px 2px var(--c), 0 0 34px 6px color-mix(in oklab, var(--c) 50%, transparent); }
+  100% { background: color-mix(in oklab, var(--c) 55%, #1d2225); box-shadow: 0 0 10px 0 color-mix(in oklab, var(--c) 60%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .boot { display: none; } }
