@@ -1,6 +1,8 @@
-"""Live telemetry: simulated Arduino -> features -> Random Forest -> ws://localhost:8765
+"""Live telemetry: simulated Arduino -> features -> Random Forest -> WebSocket at /api/ws
 
-Run:  python server.py
+Local:  python server.py   (ws://localhost:8765/api/ws)
+Vercel: the "backend" service in vercel.json; the site connects to wss://<host>/api/ws.
+Each connection drives its own simulated motor, because serverless instances share no memory.
 Hardware later: replace sim.step(CHUNK) with a serial reader that returns the
 same ADC counts; the other stages (i, vs, va, vf) then come from adc_to_amps.
 """
@@ -9,7 +11,7 @@ import json
 
 import joblib
 import numpy as np
-from websockets.asyncio.server import broadcast, serve
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 import train
 from motor import (ADC_MAX, CLASSES, FEATURES, FS, GAIN, LPF_FC, LPF_Q, R_SHUNT, V_SAT, VREF,
@@ -19,43 +21,46 @@ CHUNK = FS // 20  # 50 ms of samples per frame
 EMA = 0.25        # prediction smoothing per frame
 SWITCH = 0.6      # a new label must reach this smoothed probability (hysteresis)
 
+bundle = joblib.load(train.MODEL_PATH) if train.MODEL_PATH.exists() else train.train()
+rf = bundle["model"]
+HELLO = json.dumps({
+    "type": "hello", "source": "simulated", "classes": CLASSES, "features": FEATURES,
+    "circuit": dict(r_shunt=R_SHUNT, gain=GAIN, fc=LPF_FC, q=LPF_Q, v_sat=V_SAT,
+                    vref=VREF, adc_max=ADC_MAX, fs=FS),
+    "model": {k: bundle[k] for k in ("accuracy", "confusion", "importance", "n_train", "n_test")}
+             | {"trees": len(rf.estimators_)},
+})
+
+app = FastAPI()
+
 
 def rounded(x, d=4):
     return np.round(x, d).tolist()
 
 
-async def run():
-    bundle = joblib.load(train.MODEL_PATH) if train.MODEL_PATH.exists() else train.train()
-    rf = bundle["model"]
+@app.websocket("/api/ws")
+async def stream(ws: WebSocket):
+    await ws.accept()
     sim = MotorSim()
     window = adc_to_amps(sim.step(FS)["adc"])  # 1 s sliding window the model sees
-    hello = json.dumps({
-        "type": "hello", "source": "simulated", "classes": CLASSES, "features": FEATURES,
-        "circuit": dict(r_shunt=R_SHUNT, gain=GAIN, fc=LPF_FC, q=LPF_Q, v_sat=V_SAT,
-                        vref=VREF, adc_max=ADC_MAX, fs=FS),
-        "model": {k: bundle[k] for k in ("accuracy", "confusion", "importance", "n_train", "n_test")}
-                 | {"trees": len(rf.estimators_)},
-    })
-    clients = set()
+    await ws.send_text(HELLO)
 
-    async def handler(ws):
-        clients.add(ws)
+    async def commands():
         try:
-            await ws.send(hello)
-            async for raw in ws:
+            while True:
                 try:
-                    cmd = json.loads(raw)
+                    cmd = json.loads(await ws.receive_text())
                     sim.set(cmd["condition"], cmd.get("severity"))
                 except (ValueError, KeyError, TypeError):
                     pass  # ignore malformed commands
-        finally:
-            clients.discard(ws)
+        except WebSocketDisconnect:
+            pass
 
-    async with serve(handler, "localhost", 8765):
-        print("streaming on ws://localhost:8765  (Ctrl+C to stop)")
-        loop = asyncio.get_running_loop()
-        tick, ema, label = loop.time(), None, None
-        while True:
+    reader = asyncio.create_task(commands())
+    loop = asyncio.get_running_loop()
+    tick, ema, label = loop.time(), None, None
+    try:
+        while not reader.done():
             t = sim.n / FS
             s = sim.step(CHUNK)
             window = np.concatenate([window[CHUNK:], adc_to_amps(s["adc"])])
@@ -65,7 +70,7 @@ async def run():
             ema = p if ema is None else (1 - EMA) * ema + EMA * p
             if label is None or ema.max() >= SWITCH:
                 label = int(ema.argmax())
-            broadcast(clients, json.dumps({
+            await ws.send_text(json.dumps({
                 "type": "frame", "t": t,
                 "i": rounded(s["i"]), "vs": rounded(s["v_shunt"] * 1e3, 2),
                 "va": rounded(s["v_amp"]), "vf": rounded(s["v_filt"]), "adc": s["adc"].tolist(),
@@ -76,10 +81,13 @@ async def run():
             }))
             tick += CHUNK / FS
             await asyncio.sleep(max(0, tick - loop.time()))
+    except (WebSocketDisconnect, RuntimeError):
+        pass  # client went away mid-send
+    finally:
+        reader.cancel()
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(run())
-    except KeyboardInterrupt:
-        pass
+    import uvicorn
+
+    uvicorn.run(app, host="localhost", port=8765)

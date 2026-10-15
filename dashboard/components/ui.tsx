@@ -184,7 +184,11 @@ export function OfflineNotice({ className = "" }: { className?: string }) {
       <span className="size-2 rounded-full bg-muted" />
       <span className="font-medium">{status === "offline" ? "Backend offline" : "Connecting to backend…"}</span>
       <span className="text-ink-2">
-        Start it with <code className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs">cd backend && python server.py</code>
+        {process.env.NODE_ENV === "development" ? (
+          <>Start it with <code className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs">cd backend && python server.py</code></>
+        ) : (
+          "Retrying every second."
+        )}
       </span>
     </div>
   );

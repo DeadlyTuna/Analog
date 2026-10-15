@@ -25,7 +25,12 @@ export type LogEntry = { at: number; label: ClassName; confidence: number };
 export type Demo = { step: number; at: number; ms: number };
 type State = { status: "connecting" | "live" | "offline"; hello?: Hello; frame?: Frame; log: LogEntry[]; demo: Demo | null };
 
-const URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8765";
+// `next dev` talks to `python server.py`; a deployed build uses its own origin, where Vercel routes /api/* to the backend
+const wsUrl = () =>
+  process.env.NEXT_PUBLIC_WS_URL ??
+  (process.env.NODE_ENV === "development"
+    ? "ws://localhost:8765/api/ws"
+    : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/api/ws`);
 export const FS = 1000;
 export const BUFFER = FS * 4; // 4 s of every stage
 const DELAY = 0.15; // s of playout delay so traces scroll smoothly through network jitter
@@ -59,7 +64,8 @@ function set(patch: Partial<State>) {
 let ws: WebSocket | null = null;
 function connect() {
   if (ws) return;
-  ws = new WebSocket(URL);
+  ws = new WebSocket(wsUrl());
+  ws.onopen = () => last && send(last.condition, last.severity);
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.type === "hello") set({ hello: msg, status: "live" });
@@ -111,8 +117,11 @@ export function recentMean(c: Channel, n: number) {
   return s / n;
 }
 
+// replayed on reconnect: the backend starts a fresh motor per connection (Vercel closes sockets every few minutes)
+let last: { condition: ClassName; severity: number } | null = null;
 function send(condition: ClassName, severity: number) {
-  if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ condition, severity }));
+  last = { condition, severity };
+  if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(last));
 }
 /** Manual control: also ends the auto demo. */
 export function command(condition: ClassName, severity: number) {
